@@ -1,0 +1,4 @@
+GET http://localhost:5000/text2img
+    ?prompt=beautiful random cat playing with toy, high quality, highly detailed, real photo, 8k
+    &num_steps=50
+    &guidance_scale=1
