@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { getRuFromEn, kandinskyTxt2ImgGenerate } from "@/src/utils/utils";
 import { KandinskyTxt2ImgParams } from "@/src/dto/kandinsky-txt-2-img-params";
 import { Button, Textarea } from "@material-tailwind/react";
-import Image from "next/image";
 
 export function KandinskyImageEditor() {
   const [lsKey] = useState("dasdasdasdasd");
@@ -62,7 +61,10 @@ export function KandinskyImageEditor() {
         <table className="w-full">
           <tbody>
             <tr>
-              <td>prompt_RU</td>
+              <td>
+                prompt_RU <hr />
+                высокая детализация, высокое качество, 8k
+              </td>
               <td>
                 <Textarea
                   onChange={(e) =>
