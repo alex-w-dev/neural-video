@@ -1,11 +1,14 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { Container, Sprite, Stage, Text } from "@pixi/react";
 import { TextStyle } from "pixi.js";
+import { getCanvasRecorder } from "@/src/utils/canvas-recorder";
 
 type Image = {
   src: string;
 };
 
+const VIDEO_WIDTH = 1080;
+const VIDEO_HEIGHT = 1920;
 const IMAGES_COUNT = 25;
 const MAX_FRAME_COUNT = 90;
 const framesToImageIndex: [number, number][] = [
@@ -16,6 +19,7 @@ const framesToImageIndex: [number, number][] = [
   [39, IMAGES_COUNT - 2],
   [MAX_FRAME_COUNT, IMAGES_COUNT - 1],
 ];
+const CANVAS_ID = "ddddddddddddd";
 
 function frameToImgIndex(frame: number): number {
   for (const [frameMax, imageIndex] of framesToImageIndex) {
@@ -65,15 +69,26 @@ export default function Drew() {
     if (isPlaying) {
       return;
     }
-    console.log(1);
 
     setIsPlaying(true);
     const start = Date.now();
     let last = Date.now();
     let f = 0;
 
-    const a = () => {
+    const canvas = document.getElementById(CANVAS_ID) as HTMLCanvasElement;
+
+    const canvasRecorder = getCanvasRecorder({
+      canvas,
+      audioSrc: "/audio/money-counter.mp3",
+    });
+
+    canvasRecorder.startRecording();
+    const a = async () => {
       if (f === MAX_FRAME_COUNT) {
+        await canvasRecorder.stopRecording();
+        const video = canvasRecorder.exportStream();
+        console.log(video);
+        canvas!.parentNode!.insertBefore(video, canvas);
         setIsPlaying(false);
         return;
       }
@@ -83,8 +98,6 @@ export default function Drew() {
         console.log(f);
         f += 1;
         setFrame(f);
-      } else {
-        console.log("oops");
       }
       requestAnimationFrame(a);
     };
@@ -120,23 +133,28 @@ export default function Drew() {
         <button onClick={onPlayClick}>DSADASd</button>
       </div>
       <div>
-        <Stage width={1080} height={1820} style={{ zoom: "0.5" }}>
+        <Stage
+          width={VIDEO_WIDTH}
+          height={VIDEO_HEIGHT}
+          style={{ zoom: "0.5" }}
+          id={CANVAS_ID}
+        >
           <Sprite
             image={currentImage.src}
-            width={1080}
-            height={1820}
-            x={540}
-            y={960}
+            width={VIDEO_WIDTH}
+            height={VIDEO_HEIGHT}
+            x={VIDEO_WIDTH / 2}
+            y={VIDEO_HEIGHT / 2}
             anchor={{ x: 0.5, y: 0.5 }}
           />
 
-          <Container x={540} y={1360}>
-            <Text
-              text="Нейросеть нарисовала..."
-              style={textStyle}
-              anchor={{ x: 0.5, y: 0.5 }}
-            />
-          </Container>
+          {/*<Container x={540} y={1360}>*/}
+          {/*  <Text*/}
+          {/*    text="Нейросеть нарисовала..."*/}
+          {/*    style={textStyle}*/}
+          {/*    anchor={{ x: 0.5, y: 0.5 }}*/}
+          {/*  />*/}
+          {/*</Container>*/}
         </Stage>
       </div>
     </div>
