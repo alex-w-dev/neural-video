@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { Container, Sprite, Stage, Text } from "@pixi/react";
 import { TextStyle } from "pixi.js";
 import { getCanvasRecorder } from "@/src/utils/canvas-recorder";
+import { shuffle } from "@/src/utils/utils";
 
 type Image = {
   src: string;
@@ -12,7 +13,7 @@ const VIDEO_HEIGHT = 1920;
 const IMAGES_COUNT = 25;
 const MAX_FRAME_COUNT = 90;
 const framesToImageIndex: [number, number][] = [
-  [22, 0],
+  [21, 0],
   [24, IMAGES_COUNT - 5],
   [27, IMAGES_COUNT - 4],
   [32, IMAGES_COUNT - 3],
@@ -34,39 +35,17 @@ function frameToImgIndex(frame: number): number {
 export default function Drew() {
   const [frame, setFrame] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [images, setImages] = useState<Image[]>([
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-    { src: "https://pixijs.io/pixi-react/img/bunny.png" },
-    { src: "https://wave.video/blog/wp-content/uploads/2022/11/Bitter.png" },
-  ]);
+  const [images, setImages] = useState<Image[]>([]);
 
   const currentImage = images[frameToImgIndex(frame)];
 
   const onPlayClick = useCallback(() => {
     if (isPlaying) {
+      return;
+    }
+
+    if (images.length < IMAGES_COUNT) {
+      alert(`Нужно большк картинок: ${images.length}/${IMAGES_COUNT}`);
       return;
     }
 
@@ -102,7 +81,7 @@ export default function Drew() {
       requestAnimationFrame(a);
     };
     a();
-  }, [isPlaying, frame]);
+  }, [isPlaying, frame, images]);
 
   const textStyle = useMemo(
     () =>
@@ -127,10 +106,25 @@ export default function Drew() {
     []
   );
 
+  const onInput = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setImages(
+      Array.from(e.target.files!).map((image) => ({
+        src: window.URL.createObjectURL(image),
+      }))
+    );
+  }, []);
+
   return (
     <div>
       <div>
         <button onClick={onPlayClick}>DSADASd</button>
+      </div>
+      <div>
+        <div>Add Images</div>
+        <input type="file" name="" id="" onChange={onInput} multiple />
+      </div>
+      <div>
+        <button onClick={() => setImages([...shuffle(images)])}>SHUFFLE</button>
       </div>
       <div>
         <Stage
@@ -139,14 +133,16 @@ export default function Drew() {
           style={{ zoom: "0.5" }}
           id={CANVAS_ID}
         >
-          <Sprite
-            image={currentImage.src}
-            width={VIDEO_WIDTH}
-            height={VIDEO_HEIGHT}
-            x={VIDEO_WIDTH / 2}
-            y={VIDEO_HEIGHT / 2}
-            anchor={{ x: 0.5, y: 0.5 }}
-          />
+          {currentImage ? (
+            <Sprite
+              image={currentImage.src}
+              width={VIDEO_WIDTH}
+              height={VIDEO_HEIGHT}
+              x={VIDEO_WIDTH / 2}
+              y={VIDEO_HEIGHT / 2}
+              anchor={{ x: 0.5, y: 0.5 }}
+            />
+          ) : null}
 
           {/*<Container x={540} y={1360}>*/}
           {/*  <Text*/}
@@ -156,6 +152,20 @@ export default function Drew() {
           {/*  />*/}
           {/*</Container>*/}
         </Stage>
+      </div>
+      <div>
+        {images.map((image) => (
+          <span key={image.src}>
+            <img width={100} src={image.src} alt="" />
+            <button
+              onClick={() =>
+                setImages([...images.filter((i) => i !== image), image])
+              }
+            >
+              To last
+            </button>
+          </span>
+        ))}
       </div>
     </div>
   );
