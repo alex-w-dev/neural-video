@@ -10,24 +10,36 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@heroicons/react": "^2.0.18",
     "@material-tailwind/react": "^2.0.0",
     "@pixi/react": "^7.1.0",
     "@types/node": "20.1.4",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
+    "async-busboy": "^1.1.0",
     "autoprefixer": "10.4.14",
+    "busboy": "^1.6.0",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.2",
+    "mime-types": "^2.1.35",
+    "multer": "^1.4.5-lts.1",
     "next": "13.4.2",
+    "next-connect": "^1.0.0",
     "pixi.js": "^7.2.4",
     "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tailwindcss": "3.3.2",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "uuid": "^9.0.0",
+    "videoshow": "^0.1.12"
   },
   "devDependencies": {
+    "@types/async-busboy": "^1.1.1",
+    "@types/busboy": "^1.5.0",
+    "@types/multer": "^1.4.7",
+    "@types/uuid": "^9.0.1",
     "concurrently": "^8.0.1",
     "prettier": "^2.8.8"
   }

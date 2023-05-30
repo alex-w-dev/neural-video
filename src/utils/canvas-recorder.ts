@@ -21,10 +21,14 @@ export function getCanvasRecorder({
       initAudioStream();
     }
 
-    cStream = canvas!.captureStream(30);
+    cStream = canvas!.captureStream(60);
     cStream.addTrack(aStream.getAudioTracks()[0]);
 
-    recorder = new MediaRecorder(cStream);
+    recorder = new MediaRecorder(cStream, {
+      audioBitsPerSecond: 128000,
+      videoBitsPerSecond: 2500000,
+      mimeType: "video/x-matroska",
+    });
     recorder.start();
 
     recorder.ondataavailable = saveChunks;
