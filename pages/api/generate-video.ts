@@ -2,20 +2,18 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { saveImagesAsVideo } from "@/src/utils/save-images-as-video";
 
 type ResponseData = {
-  videoFullPath: string;
+  data: string;
 };
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
-  const filePath = await saveImagesAsVideo();
+  const images: { path: string; loop: number }[] = req.body.images;
 
-  res.json({ videoFullPath: filePath });
+  console.log("images", images);
+
+  const filePath = await saveImagesAsVideo(images);
+
+  res.json({ data: filePath });
 }
-
-export const config = {
-  api: {
-    bodyParser: false, // Disallow body parsing, consume as stream
-  },
-};

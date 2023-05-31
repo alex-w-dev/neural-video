@@ -1,4 +1,6 @@
-const uploadImagesToServer = (files: FileList): Promise<string[]> => {
+export const uploadImagesToServer = (
+  files: FileList | File[]
+): Promise<string[]> => {
   return Promise.all(
     Array.from(files).map((file) => {
       let formData = new FormData();
@@ -8,9 +10,7 @@ const uploadImagesToServer = (files: FileList): Promise<string[]> => {
         body: formData,
       })
         .then((d) => d.json())
-        .then(
-          (d) => ("http://localhost:3000/api/get-file?path=" + d.data) as string
-        );
+        .then((d) => d.data as string);
     })
   );
 };
