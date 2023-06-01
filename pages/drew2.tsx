@@ -9,6 +9,7 @@ import { uploadImagesToServer } from "@/src/utils/upload-images-to-server";
 import { dataURItoFile } from "@/src/utils/data-u-r-ito-file";
 import { Film } from "@/src/film/film.class";
 import { TrrrrAnimation } from "@/src/film/animations/trrrr.animation";
+import { TRRRRR_ANIMATION_MP3 } from "@/src/constants/paths";
 
 type Image = {
   src: string;
@@ -41,10 +42,15 @@ export default function Drew() {
         return img;
       })
     );
+    var audio = new Audio(
+      `http://localhost:3000/api/get-file?path=${TRRRRR_ANIMATION_MP3}`
+    );
 
     // just wait for pixi initialize images and render
     setTimeout(() => {
       try {
+        audio.play();
+
         film?.play({
           filmAnimationClass: TrrrrAnimation,
           onStop: () => {
@@ -97,6 +103,7 @@ export default function Drew() {
       method: "POST",
       body: JSON.stringify({
         images: filmImages,
+        audio: TRRRRR_ANIMATION_MP3,
       }),
       headers: {
         Accept: "application/json",

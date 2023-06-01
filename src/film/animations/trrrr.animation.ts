@@ -24,7 +24,6 @@ export class TrrrrAnimation extends FilmAnimation {
 
   play() {
     this.isPlaying = true;
-    console.log("6666", 6666);
     const start = Date.now();
     let lastRenderedImageIndex = 0;
     const a = () => {
@@ -35,7 +34,6 @@ export class TrrrrAnimation extends FilmAnimation {
       }
 
       const currentImageIndex = timeToImageIndex(now - start);
-      console.log("currentImageIndex", currentImageIndex);
       if (currentImageIndex !== lastRenderedImageIndex) {
         this.app.stage.children.forEach(
           (child, index) => (child.renderable = index === currentImageIndex)

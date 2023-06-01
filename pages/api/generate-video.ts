@@ -10,10 +10,11 @@ export default async function handler(
   res: NextApiResponse<ResponseData>
 ) {
   const images: { path: string; loop: number }[] = req.body.images;
+  const audio: string = req.body.audio;
 
   console.log("images", images);
 
-  const filePath = await saveImagesAsVideo(images);
+  const filePath = await saveImagesAsVideo(images, audio);
 
   res.json({ data: filePath });
 }
