@@ -70,6 +70,7 @@ export class Film {
     }
 
     this.canvasImages = [];
+    this.recordedCanvases = [];
     this.isPlaying = true;
 
     animation.play();

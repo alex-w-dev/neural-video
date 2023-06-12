@@ -10,6 +10,7 @@ import { dataURItoFile } from "@/src/utils/data-u-r-ito-file";
 import { Film } from "@/src/film/film.class";
 import { TrrrrAnimation } from "@/src/film/animations/trrrr.animation";
 import { TRRRRR_ANIMATION_MP3 } from "@/src/constants/paths";
+import { StopGameAnimation } from "@/src/film/animations/stop-game.animation";
 
 type Image = {
   src: string;
@@ -31,6 +32,7 @@ export default function Drew() {
     if (!film?.recordedCanvases.length || !images || isPlaying) {
       return alert("Film is not played yet");
     }
+    console.log("START READING DATA URL ....");
     film?.exportImages().then((imgs) => {
       console.log("START UPLOADING ....");
       uploadImagesToServer(
@@ -74,12 +76,10 @@ export default function Drew() {
         audio.play();
 
         film?.play({
-          filmAnimationClass: TrrrrAnimation,
+          filmAnimationClass: StopGameAnimation,
           onStop: () => {
             setIsPlaying(false);
             console.log("`STOP VIDEO`", "STOP VIDEO");
-            console.log("START READING DATA URL ....");
-            // TODO remove
           },
         });
       } catch (e) {
