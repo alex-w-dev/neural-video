@@ -11,12 +11,23 @@ export class Film {
   canvasImages: string[] = [];
   recordedCanvases: { canvas: HTMLCanvasElement; duration: number }[] = [];
 
-  constructor(public app: Application) {}
+  imagesSpriteContainer: Sprite = new Sprite();
+
+  constructor(public app: Application) {
+    this.imagesSpriteContainer.width = 1080;
+    this.imagesSpriteContainer.height = 1920;
+    this.imagesSpriteContainer.anchor.x = 0.5;
+    this.imagesSpriteContainer.anchor.y = 0.5;
+    this.imagesSpriteContainer.x = 1080 / 2;
+    this.imagesSpriteContainer.y = 1920 / 2;
+
+    this.app.stage.addChild(this.imagesSpriteContainer);
+  }
 
   setImages(images: ImageSource[]): void {
     this.images = images;
 
-    this.app.stage.addChild(
+    this.imagesSpriteContainer.addChild(
       ...this.images.map((img, index) => {
         const texture = new Texture(new BaseTexture(img));
 
@@ -25,7 +36,6 @@ export class Film {
         // const sprite = new TilingSprite(texture, VIDEO_WIDTH, VIDEO_HEIGHT);
 
         const sprite = new Sprite(texture);
-        sprite.scale;
 
         sprite.width = 1080;
         sprite.height = 1920;
@@ -48,7 +58,7 @@ export class Film {
     onStop: () => void;
     filmAnimationClass: typeof FilmAnimation;
   }) {
-    const animation = new filmAnimationClass(this.app);
+    const animation = new filmAnimationClass(this);
 
     if (this.images.length < animation.needImagesLength()) {
       const msg = `Слишком мало картинок! надо ${animation.needImagesLength()}`;

@@ -1,8 +1,8 @@
-import { Application } from "pixi.js";
+import { Film } from "@/src/film/film.class";
 
 export class FilmAnimation {
   isPlaying = false;
-  constructor(protected app: Application) {}
+  constructor(protected film: Film) {}
 
   play(): void {}
   stop(): void {

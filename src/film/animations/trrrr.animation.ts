@@ -35,7 +35,7 @@ export class TrrrrAnimation extends FilmAnimation {
 
       const currentImageIndex = timeToImageIndex(now - start);
       if (currentImageIndex !== lastRenderedImageIndex) {
-        this.app.stage.children.forEach(
+        this.film.imagesSpriteContainer.children.forEach(
           (child, index) => (child.renderable = index === currentImageIndex)
         );
         lastRenderedImageIndex = currentImageIndex;

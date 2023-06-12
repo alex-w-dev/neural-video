@@ -2,7 +2,6 @@ import { VIDEO_FOLDER_ABSOLUTE_PATH } from "@/src/constants/paths";
 
 var videoshow = require("videoshow");
 import { v4 as uuidv4 } from "uuid";
-import path from "path";
 
 var fps = 60;
 var finalVideoPath = "/whatever_path_works_for_you";
