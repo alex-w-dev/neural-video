@@ -22,6 +22,7 @@ export class StopGameAnimation extends FilmAnimation {
   text2Y = 1920 * 0.14;
   text3: Text;
   text3Y = 1920 * 0.12;
+  textFail: Text;
 
   constructor(protected film: Film) {
     super(film);
@@ -32,6 +33,20 @@ export class StopGameAnimation extends FilmAnimation {
     this.text1.x = 1080 * 0.5;
     this.text1.y = this.text1Y;
     this.film.app.stage.addChild(this.text1);
+
+    this.textFail = this.getSubtitleText(
+      "А я картинка не в тему!🤣\nКрути дальше, везунчик!💪👍",
+      {
+        fontSize: 55,
+        fill: "#ffffff",
+      }
+    );
+    this.textFail.anchor.x = 0.5;
+    this.textFail.anchor.y = 0.5;
+    this.textFail.x = 1080 * 0.5;
+    this.textFail.y = 1920 * 0.8;
+    this.textFail.renderable = false;
+    this.film.app.stage.addChild(this.textFail);
 
     this.text2 = this.getSubtitleText("ставь на паузу и узнай...", {
       fontSize: 70,
@@ -135,6 +150,11 @@ export class StopGameAnimation extends FilmAnimation {
         this.film.imagesSpriteContainer.children.length,
         currentTime
       );
+
+      this.textFail.renderable =
+        currentImageIndex ===
+        this.film.imagesSpriteContainer.children.length - 1;
+
       if (currentImageIndex !== lastRenderedImageIndex) {
         this.film.imagesSpriteContainer.children.forEach(
           (child, index) => (child.renderable = index === currentImageIndex)
