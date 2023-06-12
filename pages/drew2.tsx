@@ -9,7 +9,7 @@ import { uploadImagesToServer } from "@/src/utils/upload-images-to-server";
 import { dataURItoFile } from "@/src/utils/data-u-r-ito-file";
 import { Film } from "@/src/film/film.class";
 import { TrrrrAnimation } from "@/src/film/animations/trrrr.animation";
-import { TRRRRR_ANIMATION_MP3 } from "@/src/constants/paths";
+import { GAME_STOP_ANIMATION_MP3 } from "@/src/constants/paths";
 import { StopGameAnimation } from "@/src/film/animations/stop-game.animation";
 
 type Image = {
@@ -67,7 +67,7 @@ export default function Drew() {
       })
     );
     var audio = new Audio(
-      `http://localhost:3000/api/get-file?path=${TRRRRR_ANIMATION_MP3}`
+      `http://localhost:3000/api/get-file?path=${GAME_STOP_ANIMATION_MP3}`
     );
 
     // just wait for pixi initialize images and render
@@ -79,6 +79,7 @@ export default function Drew() {
           filmAnimationClass: StopGameAnimation,
           onStop: () => {
             setIsPlaying(false);
+            audio.pause();
             console.log("`STOP VIDEO`", "STOP VIDEO");
           },
         });
@@ -106,7 +107,7 @@ export default function Drew() {
       method: "POST",
       body: JSON.stringify({
         images: filmImages,
-        audio: TRRRRR_ANIMATION_MP3,
+        audio: GAME_STOP_ANIMATION_MP3,
       }),
       headers: {
         Accept: "application/json",

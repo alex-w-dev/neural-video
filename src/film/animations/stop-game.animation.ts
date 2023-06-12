@@ -63,7 +63,7 @@ export class StopGameAnimation extends FilmAnimation {
   startTextAnimation() {
     this.hideTexts();
 
-    const test3Time = 3500;
+    const test3Time = 3000;
     const test2Time = 1000;
     const slideTop = 1920 * 0.1;
     const animationTime = 700;
