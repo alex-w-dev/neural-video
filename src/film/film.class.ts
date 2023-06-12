@@ -1,5 +1,12 @@
-import { Application, BaseTexture, ImageSource, Sprite } from "pixi.js";
-import { Texture } from "@pixi/core";
+import {
+  Application,
+  BaseTexture,
+  ImageSource,
+  Texture,
+  Sprite,
+  Container,
+} from "pixi.js";
+
 import { cloneCanvas } from "@/src/utils/clone-canvas";
 import { FilmAnimation } from "@/src/film/animations/film-animation";
 
@@ -11,15 +18,11 @@ export class Film {
   canvasImages: string[] = [];
   recordedCanvases: { canvas: HTMLCanvasElement; duration: number }[] = [];
 
-  imagesSpriteContainer: Sprite = new Sprite();
+  imagesSpriteContainer: Container = new Container();
 
   constructor(public app: Application) {
     this.imagesSpriteContainer.width = 1080;
     this.imagesSpriteContainer.height = 1920;
-    this.imagesSpriteContainer.anchor.x = 0.5;
-    this.imagesSpriteContainer.anchor.y = 0.5;
-    this.imagesSpriteContainer.x = 1080 / 2;
-    this.imagesSpriteContainer.y = 1920 / 2;
 
     this.app.stage.addChild(this.imagesSpriteContainer);
   }

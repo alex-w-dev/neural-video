@@ -27,9 +27,31 @@ export default function Drew() {
   const [filmImages, setFilmImages] = useState<
     { path: string; loop: number }[]
   >([]);
+  const onExportImagesClick = useCallback(() => {
+    if (!film?.recordedCanvases.length || !images || isPlaying) {
+      return alert("Film is not played yet");
+    }
+    film?.exportImages().then((imgs) => {
+      console.log("START UPLOADING ....");
+      uploadImagesToServer(
+        imgs.map((img) => dataURItoFile(img.dataUrl, `${uuidv4()}.png`))
+      ).then((imgPaths) => {
+        console.log("COMPLETE LOADING:");
+        console.log("imgPaths", imgPaths);
+        setFilmImages(
+          imgs.map((img, index) => ({
+            loop: img.duration / 1000,
+            path: imgPaths[index],
+          }))
+        );
+      });
+
+      setImages(imgs.map((i) => ({ src: i.dataUrl, id: Math.random() })) || []);
+    });
+  }, [film]);
 
   const onPlayClick = useCallback(() => {
-    if (isPlaying) {
+    if (isPlaying || !images.length) {
       return;
     }
 
@@ -58,25 +80,6 @@ export default function Drew() {
             console.log("`STOP VIDEO`", "STOP VIDEO");
             console.log("START READING DATA URL ....");
             // TODO remove
-            film?.exportImages().then((imgs) => {
-              console.log("START UPLOADING ....");
-              uploadImagesToServer(
-                imgs.map((img) => dataURItoFile(img.dataUrl, `${uuidv4()}.png`))
-              ).then((imgPaths) => {
-                console.log("COMPLETE LOADING:");
-                console.log("imgPaths", imgPaths);
-                setFilmImages(
-                  imgs.map((img, index) => ({
-                    loop: img.duration / 1000,
-                    path: imgPaths[index],
-                  }))
-                );
-              });
-
-              setImages(
-                imgs.map((i) => ({ src: i.dataUrl, id: Math.random() })) || []
-              );
-            });
           },
         });
       } catch (e) {
@@ -120,10 +123,18 @@ export default function Drew() {
     <div>
       <div>
         <FPSStats left={"auto"} right={"0"} />
-        <button onClick={onPlayClick}>Generate Video Images</button>{" "}
-        --------------------------------------------------
+        <button onClick={onPlayClick}>
+          Step 1: Generate Video Images
+        </button>{" "}
+        ------
+        {film?.recordedCanvases.length ? (
+          <button onClick={onExportImagesClick}>Step 2: export images</button>
+        ) : null}
+        ------
         {filmImages.length ? (
-          <button onClick={onSendVideoClick}>Send Video inServer</button>
+          <button onClick={onSendVideoClick}>
+            Step 3: Send Video inServer
+          </button>
         ) : null}
       </div>
       <div>{videoPath ? <video controls src={videoPath} /> : null}</div>
