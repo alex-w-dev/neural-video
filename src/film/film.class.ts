@@ -76,6 +76,8 @@ export class Film {
     animation.play();
     this.startRecording();
 
+    console.log("animation.getTime()", animation.getTime());
+
     setTimeout(() => {
       onStop();
       this.stop();
