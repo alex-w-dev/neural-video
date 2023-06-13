@@ -26,7 +26,7 @@ export function saveImagesAsVideo(
     const videoName = `${uuidv4()}.mp4`;
 
     videoshow(images, videoOptions)
-      .audio(audio)
+      .audio(audio, { fade: false })
       .save(`${VIDEO_FOLDER_ABSOLUTE_PATH}/${videoName}`)
       .on("start", function (command) {
         console.log("encoding " + finalVideoPath + " with command " + command);

@@ -10,9 +10,11 @@ import {
 import { cloneCanvas } from "@/src/utils/clone-canvas";
 import { FilmAnimation } from "@/src/film/animations/film-animation";
 
+type FilmImage = { image: ImageSource; title: string };
+
 export class Film {
   isPlaying = false;
-  images: ImageSource[] = [];
+  images: FilmImage[] = [];
 
   // dataURItoFile()
   canvasImages: string[] = [];
@@ -27,12 +29,12 @@ export class Film {
     this.app.stage.addChild(this.imagesSpriteContainer);
   }
 
-  setImages(images: ImageSource[]): void {
+  setImages(images: FilmImage[]): void {
     this.images = images;
 
     this.imagesSpriteContainer.addChild(
       ...this.images.map((img, index) => {
-        const texture = new Texture(new BaseTexture(img));
+        const texture = new Texture(new BaseTexture(img.image));
 
         texture.width;
         console.log("texture.baseTexture.width", texture.width);

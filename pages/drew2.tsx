@@ -11,10 +11,12 @@ import { Film } from "@/src/film/film.class";
 import { TrrrrAnimation } from "@/src/film/animations/trrrr.animation";
 import { GAME_STOP_ANIMATION_MP3 } from "@/src/constants/paths";
 import { StopGameAnimation } from "@/src/film/animations/stop-game.animation";
+import styled from "styled-components";
 
 type Image = {
   src: string;
   id: number;
+  title: string;
 };
 
 const VIDEO_WIDTH = 1080;
@@ -29,7 +31,7 @@ export default function Drew() {
     { path: string; loop: number }[]
   >([]);
   const onExportImagesClick = useCallback(() => {
-    if (!film?.recordedCanvases.length || !images || isPlaying) {
+    if (!film?.recordedCanvases.length || isPlaying) {
       return alert("Film is not played yet");
     }
     console.log("START READING DATA URL ....");
@@ -47,10 +49,8 @@ export default function Drew() {
           }))
         );
       });
-
-      setImages(imgs.map((i) => ({ src: i.dataUrl, id: Math.random() })) || []);
     });
-  }, [film]);
+  }, [isPlaying, film]);
 
   const onPlayClick = useCallback(() => {
     if (isPlaying || !images.length) {
@@ -63,7 +63,10 @@ export default function Drew() {
       images.map((i) => {
         const img = document.createElement("img");
         img.src = i.src;
-        return img;
+        return {
+          image: img,
+          title: i.title,
+        };
       })
     );
     var audio = new Audio(
@@ -94,6 +97,7 @@ export default function Drew() {
     const imgs = Array.from(e.target.files!).map((image) => ({
       src: window.URL.createObjectURL(image),
       id: Math.random(),
+      title: "",
     }));
     setImages(imgs);
   }, []);
@@ -120,6 +124,16 @@ export default function Drew() {
       );
   }, [filmImages]);
 
+  const onImageTitleChange = useCallback(
+    (image: Image, newTitle: string) => {
+      const existingImage = images.find((i) => i.id === image.id);
+      existingImage!.title = newTitle;
+
+      setImages([...images]);
+    },
+    [images]
+  );
+
   return (
     <div>
       <div>
@@ -144,9 +158,6 @@ export default function Drew() {
         <input type="file" name="" id="" onChange={onInput} multiple />
       </div>
       <div>
-        <button onClick={() => setImages([...shuffle(images)])}>SHUFFLE</button>
-      </div>
-      <div>
         <Stage
           width={VIDEO_WIDTH}
           height={VIDEO_HEIGHT}
@@ -155,9 +166,16 @@ export default function Drew() {
         />
       </div>
       <div>
+        <button onClick={() => setImages([...shuffle(images)])}>SHUFFLE</button>
+      </div>
+      <div>
         {images.map((image) => (
-          <span key={image.id}>
+          <Jdasd key={image.id}>
             <img width={100} src={image.src} alt="" />
+            <textarea
+              value={image.title}
+              onChange={(e) => onImageTitleChange(image, e.target.value)}
+            />
             <button
               onClick={() =>
                 setImages([...images.filter((i) => i !== image), image])
@@ -165,9 +183,14 @@ export default function Drew() {
             >
               To last
             </button>
-          </span>
+          </Jdasd>
         ))}
       </div>
     </div>
   );
 }
+
+const Jdasd = styled.div`
+  display: inline-flex;
+  flex-direction: column;
+`;

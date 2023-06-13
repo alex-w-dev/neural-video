@@ -33,6 +33,7 @@
     "react-dom": "18.2.0",
     "react-fps-stats": "^0.3.1",
     "stats.js": "^0.17.0",
+    "styled-components": "^6.0.0-rc.3",
     "tailwindcss": "3.3.2",
     "typescript": "5.0.4",
     "uuid": "^9.0.0",
