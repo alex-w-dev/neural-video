@@ -48,6 +48,10 @@ export default function Drew() {
             path: imgPaths[index],
           }))
         );
+        setImages(
+          imgs.map((i) => ({ src: i.dataUrl, id: Math.random(), title: "" })) ||
+            []
+        );
       });
     });
   }, [isPlaying, film]);

@@ -7,7 +7,7 @@ import * as TWEEN from "@tweenjs/tween.js/dist/tween.esm.js";
 
 const IMAGES_COUNT = 3;
 
-const frameTime = 100;
+const frameTime = 120;
 
 function timeToImageIndex(imagesCount: number, time: number): number {
   return Math.floor(time / frameTime) % imagesCount;
@@ -60,7 +60,7 @@ export class StopGameAnimation extends FilmAnimation {
     this.film.app.stage.addChild(this.text2);
 
     this.text3 = this.getSubtitleText(
-      "Кто самый милый котик\nвселенной Марвел?",
+      "Какого бы питомца\nтебе подарила нейросеть?",
       {
         fill: "#34cbfe",
         fontSize: 70,
@@ -152,6 +152,15 @@ export class StopGameAnimation extends FilmAnimation {
         currentTime
       );
 
+      this.imageTitles.forEach(
+        (imageTitle, index) =>
+          (imageTitle.renderable = index === currentImageIndex)
+      );
+
+      this.film.imagesSpriteContainer.children.forEach(
+        (child, index) => (child.renderable = index === currentImageIndex)
+      );
+
       const needToChangeState = currentImageIndex !== lastRenderedImageIndex;
 
       if (needToChangeState) {
@@ -161,6 +170,8 @@ export class StopGameAnimation extends FilmAnimation {
           (imageTitle, index) =>
             (imageTitle.renderable = index === currentImageIndex)
         );
+
+        console.log(currentImageIndex);
 
         this.film.imagesSpriteContainer.children.forEach(
           (child, index) => (child.renderable = index === currentImageIndex)
