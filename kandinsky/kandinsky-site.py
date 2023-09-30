@@ -12,16 +12,16 @@ app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
-print(1)
-
-
+print('Import  kandinsky2 library...')
 from kandinsky2 import get_kandinsky2
 
 model = None
 gc.collect()
 torch.cuda.empty_cache()
 
-model = get_kandinsky2('cuda', task_type='text2img', model_version='2.1', use_flash_attention=False)
+print("Init model ...")
+# model = get_kandinsky2('cuda', task_type='text2img', model_version='2.1', use_flash_attention=False)
+model = get_kandinsky2('cuda', task_type='text2img', model_version='2.2')
 
 # images = model.generate_text2img(
 #     "beautiful slavic young woman in traditional russian outfit under sunbeams in a field with flowers, high quality, highly detailed, real photo, 8k",
@@ -49,6 +49,11 @@ folder_path = 'C:/Kandinsky-2/imgs'
 # remaining_iterations = num_iterations - (iteration + 1)
 # print(f"Completed iteration {iteration + 1}/{num_iterations}. {remaining_iterations} iteration(s) remaining.")
 
+print("Init API ...")
+@app.route('/ping')
+def ping():
+    return 'pong'
+
 @app.route('/img/<file_name>')
 def get_image(file_name):
     file_path = os.path.join(folder_path, file_name)
@@ -61,17 +66,31 @@ class Quote(Resource):
         args = request.args
 
         with torch.no_grad():
+#             images = model.generate_text2img(
+#                 args.get('prompt', 'random beautiful thing, 4k'),
+#                 #num_steps=200,
+#                 num_steps = int(args.get('num_steps', 100)),
+#                 batch_size = int(args.get('batch_size', 1)),
+#                 guidance_scale = int(args.get('guidance_scale', 7)),
+#                 h = int(args.get('h', 712)),
+#                 w = int(args.get('w', 712)),
+#                 sampler = args.get('sampler', "ddim_sampler"),
+#                 prior_cf_scale = int(args.get('prior_cf_scale', 4)),
+#                 prior_steps =str(args.get('prior_steps', 25)),
+#                 negative_prior_prompt = args.get('negative_prior_prompt', ""),
+#                 negative_decoder_prompt = args.get('negative_decoder_prompt', "")
+#             )
             images = model.generate_text2img(
                 args.get('prompt', 'random beautiful thing, 4k'),
                 #num_steps=200,
-                num_steps = int(args.get('num_steps', 100)),
+                #num_steps = int(args.get('num_steps', 100)),
+                decoder_steps=50,
                 batch_size = int(args.get('batch_size', 1)),
-                guidance_scale = int(args.get('guidance_scale', 7)),
+                decoder_guidance_scale = int(args.get('guidance_scale', 7)),
                 h = int(args.get('h', 712)),
                 w = int(args.get('w', 712)),
-                sampler = args.get('sampler', "ddim_sampler"),
-                prior_cf_scale = int(args.get('prior_cf_scale', 4)),
-                prior_steps =str(args.get('prior_steps', 25)),
+                prior_steps = int(args.get('prior_steps', 25)),
+                prior_guidance_scale = int(args.get('prior_cf_scale', 4)),
                 negative_prior_prompt = args.get('negative_prior_prompt', ""),
                 negative_decoder_prompt = args.get('negative_decoder_prompt', "")
             )
@@ -97,3 +116,5 @@ class Quote(Resource):
 api.add_resource(Quote, "/text2img", methods=['GET'])
 if __name__ == '__main__':
     app.run(debug=True)
+
+print("Server is ready!")
