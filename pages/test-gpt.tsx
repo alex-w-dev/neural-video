@@ -1,43 +1,50 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { getEnText } from "@/src/utils/get-en-text";
 
-export default function Drew() {
-  const [prompt, setPrompt] = useState("");
-  const [img, setImg] = useState("");
+export default function TestGpt() {
+  const [prompt, setPrompt] = useState(
+    (typeof window !== "undefined" && localStorage.getItem("TestGpt")) || ""
+  );
+  const [answer, setAnswer] = useState("");
   const [makingRequest, setMakingRequest] = useState(false);
   const onGenerate = useCallback(async () => {
     if (!prompt) {
       return;
     }
-
     setMakingRequest(true);
 
-    const translated = await getEnText(prompt);
-
-    const result = await fetch(
-      `http://localhost:5000/text2img?prompt=${encodeURI(translated)}`
+    const result = await window.fetch(
+      new Request("/api/chat-gpt-3/get-answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify({ message: prompt }),
+      })
     );
     const data = await result.json();
 
     setMakingRequest(false);
-    setImg(`http://localhost:5000/img/${data[0].file_name}`);
+    setAnswer(data.message);
   }, [prompt]);
 
   return (
     <Main>
-      <h1>Test Kandinsky</h1>
+      <h1>Test GPT</h1>
       <Form>
         <textarea
           disabled={makingRequest}
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(e) => (
+            localStorage.setItem("TestGpt", e.target.value),
+            setPrompt(e.target.value)
+          )}
         />
         <button disabled={makingRequest} onClick={onGenerate}>
-          Generate
+          Answer
         </button>
       </Form>
-      <div>{img ? <img src={img} alt="" /> : "No Image"}</div>
+      <div>{answer ? answer : "No Answer"}</div>
     </Main>
   );
 }
