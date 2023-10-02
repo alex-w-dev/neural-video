@@ -35,6 +35,7 @@ export default function TestFrames() {
         ...fragment,
         src: `http://localhost:5000/img/${data[0].file_name}`,
       });
+      setImgs(images);
     }
 
     setStatus(``);
