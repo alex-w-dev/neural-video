@@ -65,49 +65,51 @@ class Quote(Resource):
         torch.cuda.empty_cache()
         args = request.args
 
-        with torch.no_grad():
-#             images = model.generate_text2img(
-#                 args.get('prompt', 'random beautiful thing, 4k'),
-#                 #num_steps=200,
-#                 num_steps = int(args.get('num_steps', 100)),
-#                 batch_size = int(args.get('batch_size', 1)),
-#                 guidance_scale = int(args.get('guidance_scale', 7)),
-#                 h = int(args.get('h', 712)),
-#                 w = int(args.get('w', 712)),
-#                 sampler = args.get('sampler', "ddim_sampler"),
-#                 prior_cf_scale = int(args.get('prior_cf_scale', 4)),
-#                 prior_steps =str(args.get('prior_steps', 25)),
-#                 negative_prior_prompt = args.get('negative_prior_prompt', ""),
-#                 negative_decoder_prompt = args.get('negative_decoder_prompt', "")
-#             )
-            images = model.generate_text2img(
-                args.get('prompt', 'random beautiful thing, 4k'),
-                #num_steps=200,
-                #num_steps = int(args.get('num_steps', 100)),
-                decoder_steps=50,
-                batch_size = int(args.get('batch_size', 1)),
-                decoder_guidance_scale = int(args.get('guidance_scale', 7)),
-                h = int(args.get('h', 712)),
-                w = int(args.get('w', 712)),
-                prior_steps = int(args.get('prior_steps', 25)),
-                prior_guidance_scale = int(args.get('prior_cf_scale', 4)),
-                negative_prior_prompt = args.get('negative_prior_prompt', ""),
-                negative_decoder_prompt = args.get('negative_decoder_prompt', "")
-            )
-
         result = []
 
-        for i, image in enumerate(images):
-            # create the file name using the GUID, index, and the image file extension
-            guid = uuid.uuid4()
-            file_name = f"{guid}_{i}.png"
+        for i in range(int(args.get('images_count', 1))):
+            with torch.no_grad():
+                #  images = model.generate_text2img(
+                #      args.get('prompt', 'random beautiful thing, 4k'),
+                #      #num_steps=200,
+                #      num_steps = int(args.get('num_steps', 100)),
+                #      batch_size = int(args.get('batch_size', 1)),
+                #      guidance_scale = int(args.get('guidance_scale', 7)),
+                #      h = int(args.get('h', 712)),
+                #      w = int(args.get('w', 712)),
+                #      sampler = args.get('sampler', "ddim_sampler"),
+                #      prior_cf_scale = int(args.get('prior_cf_scale', 4)),
+                #      prior_steps =str(args.get('prior_steps', 25)),
+                #      negative_prior_prompt = args.get('negative_prior_prompt', ""),
+                #      negative_decoder_prompt = args.get('negative_decoder_prompt', "")
+                #  )
+                images = model.generate_text2img(
+                    args.get('prompt', 'random beautiful thing, 4k'),
+                    #num_steps=200,
+                    #num_steps = int(args.get('num_steps', 100)),
+                    decoder_steps = int(args.get('decoder_steps', 50)),
+                    batch_size = 1,
+                    decoder_guidance_scale = float(args.get('guidance_scale', 4)),
+                    h = int(args.get('h', 712)),
+                    w = int(args.get('w', 712)),
+                    prior_steps = int(args.get('prior_steps', 25)),
+                    prior_guidance_scale = float(args.get('prior_cf_scale', 4)),
+                    negative_prior_prompt = args.get('negative_prior_prompt', "low quality, bad quality"),
+                    negative_decoder_prompt = args.get('negative_decoder_prompt', "low quality, bad quality")
+                )
 
-            # save the image to the folder with the GUID and index name
-            file_path = os.path.join(folder_path, file_name)
-            image.save(file_path)
-            result.append({ 'file_path': file_path, 'file_name': file_name, 'folder_path': folder_path })
 
-        # return send_file(file_path, mimetype='image/png')
+            for i, image in enumerate(images):
+                # create the file name using the GUID, index, and the image file extension
+                guid = uuid.uuid4()
+                file_name = f"{guid}_{i}.png"
+
+                # save the image to the folder with the GUID and index name
+                file_path = os.path.join(folder_path, file_name)
+                image.save(file_path)
+                result.append({ 'file_path': file_path, 'file_name': file_name, 'folder_path': folder_path })
+
+            # return send_file(file_path, mimetype='image/png')
 
         return result
 

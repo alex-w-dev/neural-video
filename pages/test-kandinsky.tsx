@@ -4,7 +4,12 @@ import { getEnText } from "@/src/utils/get-en-text";
 
 export default function Drew() {
   const [prompt, setPrompt] = useState("");
-  const [img, setImg] = useState("");
+  const [priorCFScale, setPriorCFScale] = useState("0.5");
+  const [guidanceScale, setGuidanceScale] = useState("7");
+  const [priorSteps, setPriorSteps] = useState("25");
+  const [decoderSteps, setDecoderSteps] = useState("50");
+  const [imagesCount, setImagesCount] = useState("1");
+  const [imgs, setImgs] = useState([]);
   const [makingRequest, setMakingRequest] = useState(false);
   const onGenerate = useCallback(async () => {
     if (!prompt) {
@@ -16,28 +21,117 @@ export default function Drew() {
     const translated = await getEnText(prompt);
 
     const result = await fetch(
-      `http://localhost:5000/text2img?prompt=${encodeURI(translated)}`
+      `http://localhost:5000/text2img?prompt=${encodeURI(
+        translated
+      )}&prior_cf_scale=${priorCFScale}&guidance_scale=${guidanceScale}&images_count=${imagesCount}&prior_steps=${priorSteps}&decoder_steps=${decoderSteps}`
     );
     const data = await result.json();
 
     setMakingRequest(false);
-    setImg(`http://localhost:5000/img/${data[0].file_name}`);
-  }, [prompt]);
+    setImgs(data.map((i: any) => `http://localhost:5000/img/${i.file_name}`));
+  }, [
+    priorCFScale,
+    priorSteps,
+    decoderSteps,
+    guidanceScale,
+    imagesCount,
+    prompt,
+  ]);
 
   return (
     <Main>
       <h1>Test Kandinsky</h1>
       <Form>
-        <textarea
-          disabled={makingRequest}
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
+        <table>
+          <tbody>
+            <tr>
+              <td>Prompt</td>
+              <td>
+                <textarea
+                  disabled={makingRequest}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Prior CF scale</td>
+              <td>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  step="0.5"
+                  value={priorCFScale}
+                  onChange={(e) => setPriorCFScale(e.target.value)}
+                />
+                <output>{priorCFScale}</output>
+              </td>
+            </tr>
+            <tr>
+              <td>Guidance scale</td>
+              <td>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  step="0.5"
+                  value={guidanceScale}
+                  onChange={(e) => setGuidanceScale(e.target.value)}
+                />
+                <output>{guidanceScale}</output>
+              </td>
+            </tr>
+            <tr>
+              <td>Prior Steps</td>
+              <td>
+                <input
+                  type="range"
+                  min="10"
+                  max="150"
+                  value={priorSteps}
+                  onChange={(e) => setPriorSteps(e.target.value)}
+                />
+                <output>{priorSteps}</output>
+              </td>
+            </tr>
+            <tr>
+              <td>Decoder Steps</td>
+              <td>
+                <input
+                  type="range"
+                  min="10"
+                  max="150"
+                  value={decoderSteps}
+                  onChange={(e) => setDecoderSteps(e.target.value)}
+                />
+                <output>{decoderSteps}</output>
+              </td>
+            </tr>
+            <tr>
+              <td>Images Count</td>
+              <td>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={imagesCount}
+                  onChange={(e) => setImagesCount(e.target.value)}
+                />
+                <output>{imagesCount}</output>
+              </td>
+            </tr>
+          </tbody>
+        </table>
         <button disabled={makingRequest} onClick={onGenerate}>
           Generate
         </button>
       </Form>
-      <div>{img ? <img src={img} alt="" /> : "No Image"}</div>
+      <div>
+        {imgs.length
+          ? imgs.map((img) => <img key={img} src={img} alt="" />)
+          : "No Images"}
+      </div>
     </Main>
   );
 }
