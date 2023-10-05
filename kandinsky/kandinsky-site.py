@@ -89,11 +89,11 @@ class Quote(Resource):
                     #num_steps = int(args.get('num_steps', 100)),
                     decoder_steps = int(args.get('decoder_steps', 50)),
                     batch_size = 1,
-                    decoder_guidance_scale = float(args.get('guidance_scale', 4)),
+                    decoder_guidance_scale = float(args.get('guidance_scale', 7)),
                     h = int(args.get('h', 712)),
                     w = int(args.get('w', 712)),
-                    prior_steps = int(args.get('prior_steps', 25)),
-                    prior_guidance_scale = float(args.get('prior_cf_scale', 4)),
+                    prior_steps = int(args.get('prior_steps', 50)),
+                    prior_guidance_scale = float(args.get('prior_cf_scale', 0.5)),
                     negative_prior_prompt = args.get('negative_prior_prompt', "low quality, bad quality"),
                     negative_decoder_prompt = args.get('negative_decoder_prompt', "low quality, bad quality")
                 )

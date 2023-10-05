@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+import { getGptSeparatedTextToPrompts } from "@/src/utils/api/get-gpt-separated-text-to-prompts";
 
 export default function TestFramesPrepare() {
   const [prompt, setPrompt] = useState(
@@ -14,25 +15,9 @@ export default function TestFramesPrepare() {
       return;
     }
     setMakingRequest(true);
-
-    const result = await window.fetch(
-      new Request("/api/chat-gpt-3/get-answer", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json;charset=utf-8",
-        },
-        body: JSON.stringify({
-          message: `Раздели следующий текст на равные части от 40 до 70 символов: "${prompt}"
-Для каждой части нужно предложить идею картинки, ка которой изображено что-то реальное оносящееся к этой части текста.
-Ответ должен быть в JSON формате и быть массивом объектов, где каждый объект это параметры части текста.
-Объект параметров иллюстрации должен содержать следующие свойства: fragment - часть текста для которого делается картинка, prompt - строка содержащая то, что должно быть изображено в картинке по формуле содержащей 4 части разделенных запятыми: "изображаемый предмет(ы) с описанием, задний фон, дополнительное описание"`,
-        }),
-      })
-    );
-    const data = await result.json();
-
+    const answer = await getGptSeparatedTextToPrompts(prompt);
+    setAnswer(JSON.stringify(answer));
     setMakingRequest(false);
-    setAnswer(data.message);
   }, [prompt]);
 
   return (

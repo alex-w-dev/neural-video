@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { getEnText } from "@/src/utils/get-en-text";
 
-export default function Drew() {
+export default function TestKandinsky() {
   const [prompt, setPrompt] = useState("");
   const [priorCFScale, setPriorCFScale] = useState("0.5");
   const [guidanceScale, setGuidanceScale] = useState("7");
@@ -11,6 +11,7 @@ export default function Drew() {
   const [imagesCount, setImagesCount] = useState("1");
   const [imgs, setImgs] = useState([]);
   const [makingRequest, setMakingRequest] = useState(false);
+
   const onGenerate = useCallback(async () => {
     if (!prompt) {
       return;

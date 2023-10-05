@@ -1,5 +1,10 @@
 export function getJsonFromGptAnswer(answer: string): object | null {
-  const jsonString = answer.match(/(```(json)?)(.*)(```)/)?.[3].trim();
+  if (typeof answer !== "string") return null;
+
+  const jsonString = answer
+    .replace(/\n/gm, "")
+    .match(/(```(json)?)(.*)(```)/)?.[3]
+    .trim();
 
   if (!jsonString) {
     return null;
