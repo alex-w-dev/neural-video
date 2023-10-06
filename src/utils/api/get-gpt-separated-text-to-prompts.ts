@@ -1,9 +1,10 @@
 import { getJsonFromGptAnswer } from "@/src/utils/get-json-from-gpt-answer";
+import { Fragment } from "@/src/interfaces/common";
 
 export async function getGptSeparatedTextToPrompts(
   prompt: string,
   tryCount = 0
-): Promise<Array<{ prompt: string; fragment: string }> | null> {
+): Promise<Array<Fragment> | null> {
   if (tryCount++ > 5) {
     return null;
   }

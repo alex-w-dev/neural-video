@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+import { getGptScientistAnswer } from "@/src/utils/api/get-gpt-scientist-answer";
 
 export default function TestGpt() {
   const [prompt, setPrompt] = useState(
@@ -13,7 +14,7 @@ export default function TestGpt() {
     }
     setMakingRequest(true);
 
-    const result = await window.fetch(
+    /*const result = await window.fetch(
       new Request("/api/chat-gpt-3/get-answer", {
         method: "POST",
         headers: {
@@ -24,8 +25,12 @@ export default function TestGpt() {
     );
     const data = await result.json();
 
+    setAnswer(data.message);*/
+
+    const sceintist = await getGptScientistAnswer(prompt);
+    setAnswer(sceintist);
+
     setMakingRequest(false);
-    setAnswer(data.message);
   }, [prompt]);
 
   return (

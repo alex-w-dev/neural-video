@@ -1,9 +1,7 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { getEnText } from "@/src/utils/get-en-text";
-
-type Fragment = { prompt: string; fragment: string };
-type FragmentImage = Fragment & { src: string };
+import { Fragment, FragmentImage } from "@/src/interfaces/common";
 
 export default function TestFrames() {
   const [json, setJson] = useState(
