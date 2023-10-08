@@ -46,17 +46,15 @@ export default observer(function VideoCreator() {
   const onRegeneratePrompt = useCallback(async (fragment: Fragment) => {
     setLoadingFragment(fragment);
     await currentVideoStore.regenerateFramePrompt(fragment);
+    await currentVideoStore.regenerateFrameImgSrc(fragment);
     setLoadingFragment(null);
   }, []);
 
-  const onRegenerateImage = useCallback(
-    async (fragment: CurrentVideoStore["fragments"][0]) => {
-      setLoadingFragment(fragment);
-      await currentVideoStore.regenerateFrameImgSrc(fragment);
-      setLoadingFragment(null);
-    },
-    []
-  );
+  const onRegenerateImage = useCallback(async (fragment: Fragment) => {
+    setLoadingFragment(fragment);
+    await currentVideoStore.regenerateFrameImgSrc(fragment);
+    setLoadingFragment(null);
+  }, []);
 
   return (
     <JustInClient>
