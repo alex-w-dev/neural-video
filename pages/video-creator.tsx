@@ -1,18 +1,19 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import { getGptScientistAnswer } from "@/src/utils/api/get-gpt-scientist-answer";
-import { getGptSeparatedTextToPrompts } from "@/src/utils/api/get-gpt-separated-text-to-prompts";
-import { getKandinskyBaseImage } from "@/src/utils/api/get-kandinsky-base-image";
-import { consoleImage } from "@/src/utils/console-image";
 import { observer } from "mobx-react-lite";
-import { currentVideoStore } from "@/src/stores/current-video.store";
-import { getGptSeparatedText } from "@/src/utils/api/get-gpt-separated-text";
+import {
+  CurrentVideoStore,
+  currentVideoStore,
+} from "@/src/stores/current-video.store";
 import { JustInClient } from "@/src/components/just-in-client";
-import { getGptSeparatedTextPrompt } from "@/src/utils/api/get-gpt-separated-text-prompt";
-import { getGptShorterText } from "@/src/utils/api/get-gpt-shorter-text";
+
+type Fragment = CurrentVideoStore["fragments"][0];
 
 export default observer(function VideoCreator() {
   const [makingVideo, setMakingVideo] = useState(false);
+  const [loadingFragment, setLoadingFragment] = useState(
+    null as null | Fragment
+  );
 
   const onGenerate = useCallback(async () => {
     if (!currentVideoStore.prompt) {
@@ -20,11 +21,7 @@ export default observer(function VideoCreator() {
     }
     setMakingVideo(true);
 
-    console.log(`Getting AI answer (${currentVideoStore.prompt})...`);
-    currentVideoStore.setScientistAnswer(
-      await getGptScientistAnswer(currentVideoStore.prompt)
-    );
-    console.log(`Scientist answer is: ${currentVideoStore.scientistAnswer}`);
+    await currentVideoStore.regenerateScientistAnswer();
 
     // if (currentVideoStore.scientistAnswer.length > 600) {
     //   console.log(
@@ -39,31 +36,27 @@ export default observer(function VideoCreator() {
     //   );
     // }
 
-    console.log("Getting separated text...");
-    const separatedText = await getGptSeparatedText(
-      currentVideoStore.scientistAnswer
-    );
-    currentVideoStore.initFragments(separatedText);
-    console.log("Separated text is: ", separatedText);
+    await currentVideoStore.splitScientistAnswerToFrames();
 
-    console.log("Getting  prompts and images to text fragments");
-    for (const fragment of currentVideoStore.fragments) {
-      console.log(`Getting prompt for text: ${fragment.fragment}...`);
-      const prompt = await getGptSeparatedTextPrompt(
-        currentVideoStore.scientistAnswer,
-        fragment.fragment
-      );
-      currentVideoStore.setFragmentPrompt(fragment, prompt);
-
-      console.log(`Getting image for prompt: ${prompt} ...`);
-      const src = await getKandinskyBaseImage(prompt);
-      currentVideoStore.setFragmentImgSrc(fragment, src);
-      console.log(`Got ${src}:`);
-      await consoleImage(src, 100);
-    }
+    await currentVideoStore.regenerateFramesContents();
 
     setMakingVideo(false);
   }, []);
+
+  const onRegeneratePrompt = useCallback(async (fragment: Fragment) => {
+    setLoadingFragment(fragment);
+    await currentVideoStore.regenerateFramePrompt(fragment);
+    setLoadingFragment(null);
+  }, []);
+
+  const onRegenerateImage = useCallback(
+    async (fragment: CurrentVideoStore["fragments"][0]) => {
+      setLoadingFragment(fragment);
+      await currentVideoStore.regenerateFrameImgSrc(fragment);
+      setLoadingFragment(null);
+    },
+    []
+  );
 
   return (
     <JustInClient>
@@ -87,6 +80,43 @@ export default observer(function VideoCreator() {
             ? currentVideoStore.scientistAnswer
             : "No Answer"}
         </div>
+        <FramesContainer>
+          {currentVideoStore.fragments.length
+            ? currentVideoStore.fragments.map((fragment) => {
+                const fragmentIsLoading = fragment === loadingFragment;
+                return (
+                  <div
+                    key={fragment.fragment}
+                    style={{ opacity: fragmentIsLoading ? ".5" : "1" }}
+                  >
+                    <div>{fragment.fragment}</div>
+                    <div>
+                      {fragment.prompt || "No Prompt"}{" "}
+                      <button
+                        disabled={fragmentIsLoading}
+                        onClick={() => onRegeneratePrompt(fragment)}
+                      >
+                        Renew
+                      </button>
+                    </div>
+                    <div>
+                      {fragment.imgSrc ? (
+                        <>
+                          <img src={fragment.imgSrc} alt="" />
+                          <button
+                            disabled={fragmentIsLoading}
+                            onClick={() => onRegenerateImage(fragment)}
+                          >
+                            Renew
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })
+            : "No Frames"}
+        </FramesContainer>
       </Main>
     </JustInClient>
   );
@@ -101,6 +131,16 @@ const Form = styled.div`
   textarea {
     width: 350px;
     height: 86px;
+  }
+`;
+
+const FramesContainer = styled.div`
+  max-width: 100vw;
+  overflow: auto;
+  display: flex;
+
+  img {
+    max-width: 400px;
   }
 `;
 
