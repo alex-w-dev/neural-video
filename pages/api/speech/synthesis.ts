@@ -67,22 +67,31 @@ class Speech {
     return this._authRequest;
   }
 
-  async synthesis(): Promise<string> {
+  async synthesis(
+    prompt: string,
+    voice: string = "Nec_24000"
+  ): Promise<string> {
+    if (!prompt) {
+      throw new Error("prompt is required");
+    }
+
+    if (prompt.length > 4000) {
+      throw new Error("Too mach symbols in prompt");
+    }
+
     await this.auth();
 
-    console.log(this.accessToken, "this.accessToken");
-    const { statusCode, headers, body } = await request(
-      "https://smartspeech.sber.ru/rest/v1/text:synthesize?format=wav16&voice=Nec_24000",
+    const { body } = await request(
+      `https://smartspeech.sber.ru/rest/v1/text:synthesize?format=wav16&voice=${voice}`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${this.accessToken}`,
           "Content-Type": "application/ssml",
         },
-        body: "Привет",
+        body: prompt,
       }
     );
-    console.log(statusCode, "statusCode");
     const arrayBuffer = await body.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const mp3FilePath = path.join(AUDIO_FOLDER, `${v4()}.mp3`);
@@ -117,8 +126,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
-  console.log("1", 1);
-  const filePath = await speech.synthesis();
+  const filePath = await speech.synthesis(req.body.prompt, req.body.voice);
 
   res.status(200).json({ filePath });
 }
