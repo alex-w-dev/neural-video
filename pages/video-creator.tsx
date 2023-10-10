@@ -38,6 +38,26 @@ export default observer(function VideoCreator() {
 
     await currentVideoStore.splitScientistAnswerToFrames();
 
+    setMakingVideo(false);
+  }, []);
+
+  const onRenewFrames = useCallback(async () => {
+    if (!currentVideoStore.prompt) {
+      return;
+    }
+    setMakingVideo(true);
+
+    await currentVideoStore.splitScientistAnswerToFrames();
+
+    setMakingVideo(false);
+  }, []);
+
+  const onRenewFramesData = useCallback(async () => {
+    if (!currentVideoStore.prompt) {
+      return;
+    }
+    setMakingVideo(true);
+
     await currentVideoStore.regenerateFramesContents();
 
     setMakingVideo(false);
@@ -74,46 +94,65 @@ export default observer(function VideoCreator() {
           </button>
         </Form>
         <div>
-          {currentVideoStore.scientistAnswer
-            ? currentVideoStore.scientistAnswer
-            : "No Answer"}
+          {currentVideoStore.scientistAnswer ? (
+            <>
+              (length: {currentVideoStore.scientistAnswer.length}){" "}
+              {currentVideoStore.scientistAnswer}
+              <button disabled={makingVideo} onClick={onRenewFrames}>
+                Renew frames
+              </button>
+            </>
+          ) : (
+            "No Answer"
+          )}
         </div>
         <FramesContainer>
-          {currentVideoStore.fragments.length
-            ? currentVideoStore.fragments.map((fragment) => {
+          {currentVideoStore.fragments.length ? (
+            <>
+              <button disabled={makingVideo} onClick={onRenewFramesData}>
+                Renew all frames Data
+              </button>
+              {currentVideoStore.fragments.map((fragment) => {
                 const fragmentIsLoading = fragment === loadingFragment;
                 return (
                   <div
                     key={fragment.fragment}
                     style={{ opacity: fragmentIsLoading ? ".5" : "1" }}
                   >
-                    <div>{fragment.fragment}</div>
                     <div>
-                      {fragment.prompt || "No Prompt"}{" "}
+                      {fragment.fragment}{" "}
                       <button
                         disabled={fragmentIsLoading}
                         onClick={() => onRegeneratePrompt(fragment)}
                       >
-                        Renew
+                        New Prompt
                       </button>
                     </div>
+                    <hr />
+                    <div>
+                      {fragment.prompt || "No Prompt"}{" "}
+                      <button
+                        disabled={fragmentIsLoading}
+                        onClick={() => onRegenerateImage(fragment)}
+                      >
+                        New Image
+                      </button>
+                    </div>
+                    <hr />
                     <div>
                       {fragment.imgSrc ? (
                         <>
                           <img src={fragment.imgSrc} alt="" />
-                          <button
-                            disabled={fragmentIsLoading}
-                            onClick={() => onRegenerateImage(fragment)}
-                          >
-                            Renew
-                          </button>
                         </>
                       ) : null}
                     </div>
                   </div>
                 );
-              })
-            : "No Frames"}
+              })}
+            </>
+          ) : (
+            "No Frames"
+          )}
         </FramesContainer>
       </Main>
     </JustInClient>
@@ -133,9 +172,14 @@ const Form = styled.div`
 `;
 
 const FramesContainer = styled.div`
-  max-width: 100vw;
+  max-width: 100%;
   overflow: auto;
   display: flex;
+  gap: 10px;
+
+  & > div {
+    min-width: 400px;
+  }
 
   img {
     max-width: 400px;

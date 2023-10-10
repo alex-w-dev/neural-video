@@ -5,6 +5,7 @@ import { getKandinskyMobileImage } from "@/src/utils/api/get-kandinsky-mobile-im
 import { consoleImage } from "@/src/utils/console-image";
 import { getGptScientistAnswer } from "@/src/utils/api/get-gpt-scientist-answer";
 import { getGptSeparatedText } from "@/src/utils/api/get-gpt-separated-text";
+import { splitTextToSentences } from "@/src/utils/split-text-to-sentences";
 
 type Fragment = { prompt?: string; fragment: string; imgSrc?: string };
 
@@ -49,8 +50,12 @@ export class CurrentVideoStore {
 
   async splitScientistAnswerToFrames(): Promise<void> {
     console.log("Getting separated text...");
-    const separatedText = await getGptSeparatedText(
-      currentVideoStore.scientistAnswer
+    // const separatedText = await getGptSeparatedText(
+    //   currentVideoStore.scientistAnswer
+    // );
+    const separatedText = splitTextToSentences(
+      currentVideoStore.scientistAnswer,
+      40
     );
     currentVideoStore.initFragments(separatedText);
     console.log("Separated text is: ", separatedText);
