@@ -16,5 +16,5 @@ export async function getSpeechSynthesis(
   );
   const data = await result.json();
 
-  return data.filePath;
+  return "http://localhost:3000/api/get-file?path=" + data.filePath;
 }

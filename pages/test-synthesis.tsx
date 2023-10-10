@@ -17,7 +17,7 @@ export default function TestSynthesis() {
     setMakingRequest(true);
 
     const src = await getSpeechSynthesis(prompt);
-    setAudioSrc("http://localhost:3000/api/get-file?path=" + src);
+    setAudioSrc(src);
 
     setMakingRequest(false);
   }, [prompt]);
