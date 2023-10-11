@@ -8,12 +8,17 @@ export async function getEnText(sourceText: string): Promise<string> {
     "&tl=" +
     targetLang +
     "&dt=t&q=" +
-    encodeURI(sourceText);
+    encodeURI(sourceText.replaceAll("\n", ""));
 
   const result = await fetch(url);
   const data = await result.json();
 
   console.log(data);
+  let translated = "";
 
-  return data[0][0][0].replace(/\(\)/g, "\n");
+  data[0].forEach((d: any) => {
+    translated = translated + d[0].replace(/\(\)/g, "\n");
+  });
+
+  return translated;
 }
