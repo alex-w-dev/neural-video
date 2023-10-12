@@ -6,6 +6,7 @@ import {
   currentVideoStore,
 } from "@/src/stores/current-video.store";
 import { JustInClient } from "@/src/components/just-in-client";
+import { VideoRecorder } from "@/src/components/video-recorder";
 
 type Fragment = CurrentVideoStore["fragments"][0];
 
@@ -74,6 +75,12 @@ export default observer(function VideoCreator() {
     setLoadingFragment(fragment);
     await currentVideoStore.regenerateFrameImgSrc(fragment);
     setLoadingFragment(null);
+  }, []);
+
+  const onRegenerateAudio = useCallback(async () => {
+    setMakingVideo(true);
+    await currentVideoStore.regenerateAudioSrc();
+    setMakingVideo(false);
   }, []);
 
   return (
@@ -154,6 +161,29 @@ export default observer(function VideoCreator() {
             "No Frames"
           )}
         </FramesContainer>
+        <div>
+          {currentVideoStore.audioSrc ? (
+            <>
+              Duration: <output>{currentVideoStore.audioDuration}</output>
+              <audio src={currentVideoStore.audioSrc} controls></audio>
+            </>
+          ) : (
+            "No Audio"
+          )}{" "}
+          <button
+            disabled={makingVideo || !currentVideoStore.scientistAnswer}
+            onClick={onRegenerateAudio}
+          >
+            Regenerate Audio
+          </button>
+        </div>
+        <hr />
+        <div>
+          <VideoRecorder
+            audioFilePath={currentVideoStore.audioFilePath}
+            images={currentVideoStore.videRecorderImages}
+          />
+        </div>
       </Main>
     </JustInClient>
   );

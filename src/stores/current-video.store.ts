@@ -6,6 +6,9 @@ import { consoleImage } from "@/src/utils/console-image";
 import { getGptScientistAnswer } from "@/src/utils/api/get-gpt-scientist-answer";
 import { getGptSeparatedText } from "@/src/utils/api/get-gpt-separated-text";
 import { splitTextToSentences } from "@/src/utils/split-text-to-sentences";
+import { getSpeechSynthesis } from "@/src/utils/api/get-speech-synthesis";
+import { getAudioDuration } from "@/src/utils/get-audio-duration";
+import { VideRecorderImage } from "@/src/components/video-recorder";
 
 type Fragment = { prompt?: string; fragment: string; imgSrc?: string };
 
@@ -13,6 +16,21 @@ export class CurrentVideoStore {
   public prompt: string = "";
   public scientistAnswer: string = "";
   public fragments: Array<Fragment> = [];
+  public audioSrc: string = "";
+  public audioFilePath: string = "";
+  public audioDuration: number = 0;
+
+  get videRecorderImages(): VideRecorderImage[] {
+    return this.fragments
+      .filter((fragment) => !!fragment.imgSrc)
+      .map((fragment, index) => {
+        return {
+          src: fragment.imgSrc!,
+          id: index,
+          title: fragment.fragment,
+        };
+      });
+  }
 
   constructor() {
     if (typeof window === "undefined") {
@@ -24,6 +42,9 @@ export class CurrentVideoStore {
       "prompt",
       "scientistAnswer",
       "fragments",
+      "audioSrc",
+      "audioFilePath",
+      "audioDuration",
     ]);
   }
 
@@ -75,6 +96,19 @@ export class CurrentVideoStore {
     this.setFragmentImgSrc(fragment, src);
     console.log(`Got ${src}:`);
     await consoleImage(src, 100);
+  }
+
+  async regenerateAudioSrc(): Promise<void> {
+    console.log(
+      `Getting audio for scientist answer: ${this.scientistAnswer} ...`
+    );
+    this.audioFilePath = await getSpeechSynthesis(this.scientistAnswer);
+    this.audioSrc =
+      "http://localhost:3000/api/get-file?path=" + this.audioFilePath;
+
+    console.log(`Audio duration is ...`);
+    this.audioDuration = await getAudioDuration(this.audioSrc);
+    console.log(this.audioDuration);
   }
 
   async regenerateFramePrompt(fragment: Fragment): Promise<void> {

@@ -1,6 +1,8 @@
+import { SynthesisVoiceEnum } from "@/src/constants/synthesis-voice.enum";
+
 export async function getSpeechSynthesis(
   prompt: string,
-  voice: string = "Nec_24000"
+  voice: SynthesisVoiceEnum = SynthesisVoiceEnum.Alexandra
 ): Promise<string> {
   const result = await window.fetch(
     new Request("/api/speech/synthesis", {
@@ -16,5 +18,5 @@ export async function getSpeechSynthesis(
   );
   const data = await result.json();
 
-  return "http://localhost:3000/api/get-file?path=" + data.filePath;
+  return data.filePath;
 }

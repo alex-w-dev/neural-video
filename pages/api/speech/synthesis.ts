@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import * as fs from "fs";
 import path from "path";
 import { AUDIO_FOLDER } from "@/src/constants/paths";
+import { SynthesisVoiceEnum } from "@/src/constants/synthesis-voice.enum";
 const Lame = require("node-lame").Lame;
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
@@ -69,7 +70,7 @@ class Speech {
 
   async synthesis(
     prompt: string,
-    voice: string = "Nec_24000"
+    voice: SynthesisVoiceEnum = SynthesisVoiceEnum.Alexandra
   ): Promise<string> {
     if (!prompt) {
       throw new Error("prompt is required");
