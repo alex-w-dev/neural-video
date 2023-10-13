@@ -7,6 +7,7 @@ import {
 } from "@/src/stores/current-video.store";
 import { JustInClient } from "@/src/components/just-in-client";
 import { VideoRecorder } from "@/src/components/video-recorder";
+import { VideRecorderOnReadyData } from "@/src/interfaces/common";
 
 type Fragment = CurrentVideoStore["fragments"][0];
 
@@ -23,6 +24,7 @@ export default observer(function VideoCreator() {
     setMakingVideo(true);
 
     await currentVideoStore.regenerateScientistAnswer();
+    await currentVideoStore.regenerateScientistAnswerDescription();
 
     // if (currentVideoStore.scientistAnswer.length > 600) {
     //   console.log(
@@ -83,6 +85,16 @@ export default observer(function VideoCreator() {
     setMakingVideo(false);
   }, []);
 
+  const onReMakeDescription = useCallback(async () => {
+    setMakingVideo(true);
+    await currentVideoStore.regenerateScientistAnswerDescription();
+    setMakingVideo(false);
+  }, []);
+
+  const onVideoReady = useCallback((data: VideRecorderOnReadyData) => {
+    currentVideoStore.setVideoFilePath(data.videoFilePath);
+  }, []);
+
   return (
     <JustInClient>
       <Main>
@@ -106,12 +118,25 @@ export default observer(function VideoCreator() {
               (length: {currentVideoStore.scientistAnswer.length})(time:{" "}
               {Math.round(currentVideoStore.scientistAnswer.length / 15.5)}sec){" "}
               {currentVideoStore.scientistAnswer}
+              <button disabled={makingVideo} onClick={onReMakeDescription}>
+                Renew description
+              </button>
+            </>
+          ) : (
+            "No Answer"
+          )}
+        </div>
+        <div>
+          {currentVideoStore.scientistAnswerDescription ? (
+            <>
+              (length: {currentVideoStore.scientistAnswerDescription.length}){" "}
+              {currentVideoStore.scientistAnswerDescription}
               <button disabled={makingVideo} onClick={onRenewFrames}>
                 Renew frames
               </button>
             </>
           ) : (
-            "No Answer"
+            "No Description"
           )}
         </div>
         <FramesContainer>
@@ -179,17 +204,33 @@ export default observer(function VideoCreator() {
           </button>
         </div>
         <hr />
-        <div>
-          <VideoRecorder
-            audioFilePath={currentVideoStore.audioFilePath}
-            images={currentVideoStore.videRecorderImages}
-          />
-        </div>
+        <VideoContainer>
+          <div>
+            <VideoRecorder
+              audioFilePath={currentVideoStore.audioFilePath}
+              images={currentVideoStore.videRecorderImages}
+              onVideReady={onVideoReady}
+            />
+          </div>
+          <div>
+            {currentVideoStore.videoSrc ? (
+              <Video controls src={currentVideoStore.videoSrc} />
+            ) : null}
+          </div>
+        </VideoContainer>
       </Main>
     </JustInClient>
   );
 });
 
+const VideoContainer = styled.div`
+  display: flex;
+  gap: 20px;
+  align-items: center;
+`;
+const Video = styled.video`
+  zoom: 0.4;
+`;
 const Form = styled.div`
   display: flex;
   gap: 20px;

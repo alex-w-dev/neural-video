@@ -9,16 +9,19 @@ import { splitTextToSentences } from "@/src/utils/split-text-to-sentences";
 import { getSpeechSynthesis } from "@/src/utils/api/get-speech-synthesis";
 import { getAudioDuration } from "@/src/utils/get-audio-duration";
 import { VideRecorderImage } from "@/src/components/video-recorder";
+import { getGptShorterText } from "@/src/utils/api/get-gpt-shorter-text";
 
 type Fragment = { prompt?: string; fragment: string; imgSrc?: string };
 
 export class CurrentVideoStore {
   public prompt: string = "";
   public scientistAnswer: string = "";
+  public scientistAnswerDescription: string = "";
   public fragments: Array<Fragment> = [];
   public audioSrc: string = "";
   public audioFilePath: string = "";
   public audioDurationMs: number = 0;
+  public videFilePath: string = "";
 
   get videRecorderImages(): VideRecorderImage[] {
     return this.fragments
@@ -32,6 +35,14 @@ export class CurrentVideoStore {
       });
   }
 
+  get videoSrc(): string {
+    return (
+      (this.videFilePath &&
+        "http://localhost:3000/api/get-file?path=" + this.videFilePath) ||
+      ""
+    );
+  }
+
   constructor() {
     if (typeof window === "undefined") {
       return;
@@ -41,9 +52,11 @@ export class CurrentVideoStore {
     localstorageClassSaver(this, "CurrentVideoStore", [
       "prompt",
       "scientistAnswer",
+      "scientistAnswerDescription",
       "fragments",
       "audioSrc",
       "audioFilePath",
+      "videFilePath",
       "audioDurationMs",
     ]);
   }
@@ -67,6 +80,10 @@ export class CurrentVideoStore {
 
   setScientistAnswer(scientistAnswer: string): void {
     this.scientistAnswer = scientistAnswer;
+  }
+
+  setVideoFilePath(videFilePath: string): void {
+    this.videFilePath = videFilePath;
   }
 
   async splitScientistAnswerToFrames(): Promise<void> {
@@ -114,7 +131,7 @@ export class CurrentVideoStore {
   async regenerateFramePrompt(fragment: Fragment): Promise<void> {
     console.log(`Getting prompt for text: ${fragment.fragment}...`);
     const prompt = await getGptSeparatedTextPrompt(
-      this.scientistAnswer,
+      this.scientistAnswerDescription,
       fragment.fragment
     );
     this.setFragmentPrompt(fragment, prompt);
@@ -132,6 +149,14 @@ export class CurrentVideoStore {
     console.log(`Getting AI answer (${this.prompt})...`);
     this.setScientistAnswer(await getGptScientistAnswer(this.prompt));
     console.log(`Scientist answer is: ${this.scientistAnswer}`);
+  }
+
+  async regenerateScientistAnswerDescription(): Promise<void> {
+    console.log(`Getting AI answer shorter (${this.scientistAnswer})...`);
+    this.scientistAnswerDescription = await getGptShorterText(
+      this.scientistAnswer
+    );
+    console.log(`Scientist answer is: ${this.scientistAnswerDescription}`);
   }
 }
 

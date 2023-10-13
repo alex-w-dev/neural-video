@@ -9,6 +9,7 @@ import { uploadImagesToServer } from "@/src/utils/upload-images-to-server";
 import { dataURItoFile } from "@/src/utils/data-u-r-ito-file";
 import { Film } from "@/src/film/film.class";
 import { ScientistAnswerAnimation } from "@/src/film/animations/scientist-answer.animation";
+import { VideRecorderOnReadyData } from "@/src/interfaces/common";
 
 export type VideRecorderImage = {
   src: string;
@@ -22,9 +23,14 @@ const VIDEO_HEIGHT = 1920;
 export type VideRecorderProps = {
   images: VideRecorderImage[];
   audioFilePath: string;
+  onVideReady: (data: VideRecorderOnReadyData) => void;
 };
 
-export function VideoRecorder({ images, audioFilePath }: VideRecorderProps) {
+export function VideoRecorder({
+  images,
+  audioFilePath,
+  onVideReady,
+}: VideRecorderProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoPath, setVideoPath] = useState("");
   const [film, setFilm] = useState<Film | null>(null);
@@ -112,10 +118,14 @@ export function VideoRecorder({ images, audioFilePath }: VideRecorderProps) {
       },
     })
       .then((d) => d.json())
-      .then((d) =>
-        setVideoPath("http://localhost:3000/api/get-file?path=" + d.data)
-      );
-  }, [audioFilePath, filmImages]);
+      .then((d) => {
+        onVideReady({
+          videoFilePath: d.data,
+          videoSrc: "http://localhost:3000/api/get-file?path=" + d.data,
+        });
+        setVideoPath("http://localhost:3000/api/get-file?path=" + d.data);
+      });
+  }, [onVideReady, audioFilePath, filmImages]);
 
   return (
     <div>
@@ -135,7 +145,7 @@ export function VideoRecorder({ images, audioFilePath }: VideRecorderProps) {
           </button>
         ) : null}
       </div>
-      <div>{videoPath ? <video controls src={videoPath} /> : null}</div>
+      {/*<div>{videoPath ? <video controls src={videoPath} /> : null}</div>*/}
       <div>
         <Stage
           width={VIDEO_WIDTH}
