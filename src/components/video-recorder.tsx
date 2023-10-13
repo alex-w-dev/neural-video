@@ -8,10 +8,7 @@ import FPSStats from "react-fps-stats";
 import { uploadImagesToServer } from "@/src/utils/upload-images-to-server";
 import { dataURItoFile } from "@/src/utils/data-u-r-ito-file";
 import { Film } from "@/src/film/film.class";
-import { TrrrrAnimation } from "@/src/film/animations/trrrr.animation";
-import { GAME_STOP_ANIMATION_MP3 } from "@/src/constants/paths";
-import { StopGameAnimation } from "@/src/film/animations/stop-game.animation";
-import styled from "styled-components";
+import { ScientistAnswerAnimation } from "@/src/film/animations/scientist-answer.animation";
 
 export type VideRecorderImage = {
   src: string;
@@ -84,7 +81,7 @@ export function VideoRecorder({ images, audioFilePath }: VideRecorderProps) {
         audio.play();
 
         film?.play({
-          filmAnimationClass: StopGameAnimation,
+          filmAnimationClass: ScientistAnswerAnimation,
           onStop: () => {
             setIsPlaying(false);
             audio.pause();

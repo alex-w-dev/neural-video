@@ -103,7 +103,8 @@ export default observer(function VideoCreator() {
         <div>
           {currentVideoStore.scientistAnswer ? (
             <>
-              (length: {currentVideoStore.scientistAnswer.length}){" "}
+              (length: {currentVideoStore.scientistAnswer.length})(time:{" "}
+              {Math.round(currentVideoStore.scientistAnswer.length / 15.5)}sec){" "}
               {currentVideoStore.scientistAnswer}
               <button disabled={makingVideo} onClick={onRenewFrames}>
                 Renew frames
@@ -164,7 +165,7 @@ export default observer(function VideoCreator() {
         <div>
           {currentVideoStore.audioSrc ? (
             <>
-              Duration: <output>{currentVideoStore.audioDuration}</output>
+              Duration: <output>{currentVideoStore.audioDurationMs}</output>ms
               <audio src={currentVideoStore.audioSrc} controls></audio>
             </>
           ) : (

@@ -18,7 +18,7 @@ export class CurrentVideoStore {
   public fragments: Array<Fragment> = [];
   public audioSrc: string = "";
   public audioFilePath: string = "";
-  public audioDuration: number = 0;
+  public audioDurationMs: number = 0;
 
   get videRecorderImages(): VideRecorderImage[] {
     return this.fragments
@@ -44,7 +44,7 @@ export class CurrentVideoStore {
       "fragments",
       "audioSrc",
       "audioFilePath",
-      "audioDuration",
+      "audioDurationMs",
     ]);
   }
 
@@ -76,7 +76,7 @@ export class CurrentVideoStore {
     // );
     const separatedText = splitTextToSentences(
       currentVideoStore.scientistAnswer,
-      40
+      30
     );
     currentVideoStore.initFragments(separatedText);
     console.log("Separated text is: ", separatedText);
@@ -107,8 +107,8 @@ export class CurrentVideoStore {
       "http://localhost:3000/api/get-file?path=" + this.audioFilePath;
 
     console.log(`Audio duration is ...`);
-    this.audioDuration = await getAudioDuration(this.audioSrc);
-    console.log(this.audioDuration);
+    this.audioDurationMs = (await getAudioDuration(this.audioSrc)) * 1000;
+    console.log(this.audioDurationMs);
   }
 
   async regenerateFramePrompt(fragment: Fragment): Promise<void> {

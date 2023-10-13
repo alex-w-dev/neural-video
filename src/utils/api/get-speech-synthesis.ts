@@ -2,7 +2,7 @@ import { SynthesisVoiceEnum } from "@/src/constants/synthesis-voice.enum";
 
 export async function getSpeechSynthesis(
   prompt: string,
-  voice: SynthesisVoiceEnum = SynthesisVoiceEnum.Alexandra
+  voice: SynthesisVoiceEnum = SynthesisVoiceEnum.Taras
 ): Promise<string> {
   const result = await window.fetch(
     new Request("/api/speech/synthesis", {
