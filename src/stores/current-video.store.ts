@@ -47,6 +47,10 @@ export class CurrentVideoStore {
     );
   }
 
+  get youtubeTitle(): string {
+    return `Нейросеть спросили: ${this.prompt}?`;
+  }
+
   constructor() {
     if (typeof window === "undefined") {
       return;

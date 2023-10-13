@@ -150,6 +150,7 @@ export default observer(function VideoCreator() {
             "No Description"
           )}
         </div>
+        <div>{currentVideoStore.youtubeTitle}</div>
         <div>
           {currentVideoStore.youtubeDescription ? (
             <>(Youtube Description) {currentVideoStore.youtubeDescription}</>
