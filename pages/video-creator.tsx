@@ -95,6 +95,12 @@ export default observer(function VideoCreator() {
     currentVideoStore.setVideoFilePath(data.videoFilePath);
   }, []);
 
+  const onRemakeSeo = useCallback(async () => {
+    setMakingVideo(true);
+    await currentVideoStore.remakeSeo();
+    setMakingVideo(false);
+  }, []);
+
   return (
     <JustInClient>
       <Main>
@@ -118,9 +124,14 @@ export default observer(function VideoCreator() {
               (length: {currentVideoStore.scientistAnswer.length})(time:{" "}
               {Math.round(currentVideoStore.scientistAnswer.length / 15.5)}sec){" "}
               {currentVideoStore.scientistAnswer}
-              <button disabled={makingVideo} onClick={onReMakeDescription}>
-                Renew description
-              </button>
+              <div>
+                <button disabled={makingVideo} onClick={onReMakeDescription}>
+                  Renew description
+                </button>
+                <button disabled={makingVideo} onClick={onRemakeSeo}>
+                  remake SEO
+                </button>
+              </div>
             </>
           ) : (
             "No Answer"
@@ -137,6 +148,20 @@ export default observer(function VideoCreator() {
             </>
           ) : (
             "No Description"
+          )}
+        </div>
+        <div>
+          {currentVideoStore.youtubeDescription ? (
+            <>(Youtube Description) {currentVideoStore.youtubeDescription}</>
+          ) : (
+            "No youtubeDescription"
+          )}
+        </div>
+        <div>
+          {currentVideoStore.youtubeKeywords ? (
+            <>(Youtube Keywords) {currentVideoStore.youtubeKeywords}</>
+          ) : (
+            "No youtubeKeywords"
           )}
         </div>
         <FramesContainer>

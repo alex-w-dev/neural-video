@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { getGptScientistAnswer } from "@/src/utils/api/get-gpt-scientist-answer";
+import { getGptAnswer } from "@/src/utils/api/get-gpt-answer";
 
 export default function TestGpt() {
   const [prompt, setPrompt] = useState(
@@ -27,7 +28,7 @@ export default function TestGpt() {
 
     setAnswer(data.message);*/
 
-    const sceintist = await getGptScientistAnswer(prompt);
+    const sceintist = await getGptAnswer(prompt);
     setAnswer(sceintist);
 
     setMakingRequest(false);

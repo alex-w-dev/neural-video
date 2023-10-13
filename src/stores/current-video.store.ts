@@ -10,6 +10,8 @@ import { getSpeechSynthesis } from "@/src/utils/api/get-speech-synthesis";
 import { getAudioDuration } from "@/src/utils/get-audio-duration";
 import { VideRecorderImage } from "@/src/components/video-recorder";
 import { getGptShorterText } from "@/src/utils/api/get-gpt-shorter-text";
+import { getGptYoutubeVideoDescription } from "@/src/utils/api/get-gpt-youtube-video-description";
+import { getGptYoutubeVideoKeywords } from "@/src/utils/api/get-gpt-youtube-video-keywords";
 
 type Fragment = { prompt?: string; fragment: string; imgSrc?: string };
 
@@ -22,6 +24,8 @@ export class CurrentVideoStore {
   public audioFilePath: string = "";
   public audioDurationMs: number = 0;
   public videFilePath: string = "";
+  public youtubeDescription: string = "";
+  public youtubeKeywords: string = "";
 
   get videRecorderImages(): VideRecorderImage[] {
     return this.fragments
@@ -58,6 +62,8 @@ export class CurrentVideoStore {
       "audioFilePath",
       "videFilePath",
       "audioDurationMs",
+      "youtubeKeywords",
+      "youtubeDescription",
     ]);
   }
 
@@ -84,6 +90,24 @@ export class CurrentVideoStore {
 
   setVideoFilePath(videFilePath: string): void {
     this.videFilePath = videFilePath;
+  }
+
+  async remakeSeo(): Promise<void> {
+    console.log("Getting youtube description...");
+    const gptDescription = await getGptYoutubeVideoDescription(
+      this.prompt,
+      this.scientistAnswer
+    );
+    this.youtubeDescription = `${gptDescription}\nВы также можете задавать свои вопросы в комментариях! - там подключена нейросеть!!!`;
+    console.log("Got " + this.youtubeDescription);
+
+    console.log("Getting youtube keywords...");
+    const keywords = await getGptYoutubeVideoKeywords(
+      this.prompt,
+      this.scientistAnswer
+    );
+    this.youtubeKeywords = keywords;
+    console.log("Got " + keywords);
   }
 
   async splitScientistAnswerToFrames(): Promise<void> {
