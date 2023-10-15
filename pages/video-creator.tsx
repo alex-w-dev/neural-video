@@ -142,6 +142,9 @@ export default observer(function VideoCreator() {
     <JustInClient>
       <Main>
         <h1>Video Creator</h1>
+        <button onClick={() => currentVideoStore.clearAllData()}>
+          Clear ALL DATA
+        </button>
         <Form>
           <textarea
             disabled={makingVideo}
@@ -316,7 +319,7 @@ const Form = styled.div`
   justify-content: center;
 
   textarea {
-    width: 350px;
+    min-width: 80vw;
     height: 86px;
   }
 `;

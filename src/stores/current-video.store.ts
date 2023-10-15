@@ -75,6 +75,19 @@ export class CurrentVideoStore {
     ]);
   }
 
+  clearAllData(): void {
+    this.prompt = "";
+    this.scientistAnswer = "";
+    this.scientistAnswerDescription = "";
+    this.fragments = [];
+    this.audioSrc = "";
+    this.audioFilePath = "";
+    this.audioDurationMs = 0;
+    this.videFilePath = "";
+    this.youtubeDescription = "";
+    this.youtubeKeywords = "";
+  }
+
   setPrompt(prompt: string): void {
     this.prompt = prompt;
   }

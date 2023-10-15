@@ -17,12 +17,14 @@ import { checkAndAnswerChannelComments } from "@/src/utils/api/check-and-answer-
 type Fragment = CurrentVideoStore["fragments"][0];
 
 export default observer(function VideoCreator() {
+  const [lastCheck, setLastCheck] = useState(new Date().toLocaleTimeString());
   const onCommentsCheck = useCallback(async () => {
     await checkAndAnswerChannelComments();
     console.log(
       `Comments Checked and answered`,
       "`Comments Checked and answered`"
     );
+    setLastCheck(new Date().toLocaleTimeString());
   }, []);
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export default observer(function VideoCreator() {
     <JustInClient>
       <Main>
         <h1>Video Checker</h1>
+        <div>Last check ${lastCheck}</div>
         <button onClick={onCommentsCheck}>Check Now</button>
       </Main>
     </JustInClient>
