@@ -29,6 +29,7 @@ export default observer(function VideoCreator() {
 
     await currentVideoStore.regenerateScientistAnswer();
     await currentVideoStore.regenerateScientistAnswerDescription();
+    await currentVideoStore.remakeSeo();
 
     // if (currentVideoStore.scientistAnswer.length > 600) {
     //   console.log(
