@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getYoutubeForUser } from "@/server/utils/youtube";
+import { CommentVideoParams } from "@/src/interfaces/comment-video-params";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
   if (!req.body.videoId) {
     throw new Error("body.videoId is required");
@@ -12,18 +13,20 @@ export default async function handler(
     throw new Error("body.text is required");
   }
 
-  var youtube = getYoutubeForUser(req, res);
+  const { videoId, text } = req.body as CommentVideoParams;
+
+  const youtube = getYoutubeForUser(req, res);
 
   youtube.commentThreads.insert(
     {
       part: ["snippet"],
       requestBody: {
         snippet: {
-          videoId: req.body.videoId,
+          videoId: videoId,
           topLevelComment: {
             snippet: {
-              videoId: req.body.videoId,
-              textOriginal: req.body.text,
+              videoId: videoId,
+              textOriginal: text,
             },
           },
         },
@@ -39,6 +42,6 @@ export default async function handler(
         res.send(data);
         console.log(data);
       }
-    },
+    }
   );
 }

@@ -7,6 +7,7 @@ import { GaxiosResponse } from "gaxios";
 import { youtube_v3 } from "googleapis/build/src/apis/youtube/v3";
 import * as fs from "fs";
 import path from "path";
+import { UploadVideoParams } from "@/src/interfaces/upload-video-params";
 
 export default async function handler(
   req: NextApiRequest,
@@ -25,7 +26,8 @@ export default async function handler(
     throw new Error("body.videoFilePath is required");
   }
 
-  const { title, description, tags, videoFilePath } = req.body;
+  const { title, description, tags, videoFilePath } =
+    req.body as UploadVideoParams;
   const youtube = getYoutubeForUser(req, res);
 
   const response = await youtube.videos.insert({

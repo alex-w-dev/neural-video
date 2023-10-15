@@ -8,6 +8,10 @@ import {
 import { JustInClient } from "@/src/components/just-in-client";
 import { VideoRecorder } from "@/src/components/video-recorder";
 import { VideRecorderOnReadyData } from "@/src/interfaces/common";
+import { uploadVideo } from "@/src/utils/api/upload-video";
+import { getYoutubeOauth } from "@/src/utils/api/get-youtube-oauth";
+import { getYoutubeOauthLink } from "@/src/utils/api/get-youtube-oauth-link";
+import { commentVideo } from "@/src/utils/api/comment-video";
 
 type Fragment = CurrentVideoStore["fragments"][0];
 
@@ -99,6 +103,38 @@ export default observer(function VideoCreator() {
     setMakingVideo(true);
     await currentVideoStore.remakeSeo();
     setMakingVideo(false);
+  }, []);
+
+  const onUploadVideo = useCallback(async () => {
+    setMakingVideo(true);
+    console.log("Start uploading ...");
+    const returns = await uploadVideo({
+      title: currentVideoStore.youtubeTitle,
+      tags: currentVideoStore.youtubeTags,
+      videoFilePath: currentVideoStore.videFilePath,
+      description: currentVideoStore.youtubeDescription,
+    });
+    console.log("Commenting video " + returns.data.id + " ...");
+    await commentVideo({
+      videoId: returns.data.id,
+      text: `Дорогие друзья, это видео сделано несколькими нейросетями: Chat GPT 3.5, Kandinsky 2.2 и SaluteSpeech.
+А ChatGPT еще и периодически подключается к комментариям, тем самым давая возможность пообщаться с ней!`,
+    });
+    setMakingVideo(false);
+  }, []);
+
+  const onCheckAuth = useCallback(async (e: any) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      await getYoutubeOauth();
+      alert("Login Success");
+    } catch (e) {
+      const a = document.createElement("a");
+      a.target = "_blank";
+      a.href = getYoutubeOauthLink();
+      a.click();
+    }
   }, []);
 
   return (
@@ -244,6 +280,21 @@ export default observer(function VideoCreator() {
             ) : null}
           </div>
         </VideoContainer>
+        <div>
+          <a href={"#"} onClick={onCheckAuth}>
+            Check Auth
+          </a>
+        </div>
+        <div>
+          {currentVideoStore.youtubeDescription &&
+          currentVideoStore.youtubeKeywords &&
+          currentVideoStore.videFilePath &&
+          currentVideoStore.youtubeTitle ? (
+            <button onClick={onUploadVideo}>Upload to Youtube</button>
+          ) : (
+            "Cannot to Upload - no required prams"
+          )}
+        </div>
       </Main>
     </JustInClient>
   );

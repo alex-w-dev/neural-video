@@ -51,6 +51,10 @@ export class CurrentVideoStore {
     return `Нейросеть спросили: ${this.prompt}?`;
   }
 
+  get youtubeTags(): string[] {
+    return this.youtubeKeywords.split(",");
+  }
+
   constructor() {
     if (typeof window === "undefined") {
       return;
