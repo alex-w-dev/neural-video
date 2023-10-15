@@ -2,8 +2,14 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { OAuth2Client } from "google-auth-library/build/src/auth/oauth2client";
 import { google } from "googleapis";
 import { getCookie } from "cookies-next";
-import { youtube_v3 } from "googleapis/build/src/apis/youtube/v3";
+import {
+  Schema$Comment,
+  youtube_v3,
+} from "googleapis/build/src/apis/youtube/v3";
 import Schema$CommentSnippet = youtube_v3.Schema$CommentSnippet;
+import { GaxiosResponse } from "gaxios";
+import { ReplyCoomentParams } from "@/src/interfaces/reply-cooment-params";
+import { GaxiosPromise } from "googleapis-common";
 
 export const YOUTUBE_AUTH_COOKIE_KEY = "youtubeTokens";
 
@@ -74,6 +80,21 @@ export function getYoutubeCommentThreads(youtube: youtube_v3.Youtube) {
     textFormat: "plainText",
     order: "time",
     moderationStatus: "published",
+  });
+}
+
+export function replyComment(
+  youtube: youtube_v3.Youtube,
+  params: ReplyCoomentParams
+): GaxiosPromise<Schema$Comment> {
+  return youtube.comments.insert({
+    part: ["snippet"],
+    requestBody: {
+      snippet: {
+        textOriginal: params.text,
+        parentId: params.commentId,
+      },
+    },
   });
 }
 
