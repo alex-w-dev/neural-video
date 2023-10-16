@@ -6,6 +6,7 @@ import {
   replyComment,
 } from "@/server/utils/youtube";
 import { runCompletion } from "@/server/utils/openai";
+import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions";
 
 export default async function handler(
   req: NextApiRequest,
@@ -37,7 +38,7 @@ export default async function handler(
         messages: [
           {
             role: "user",
-            content: `Вы выступаете в роли создателя видео, который вежливо и ёмко отвечает на комментарии к своим видео.
+            content: `Вы выступаете в роли создателя видео, который вежливо и подробно отвечает на комментарии к своим видео.
 Вот первый комментарий: "${
               comment.snippet.topLevelComment.snippet.textOriginal as string
             }"
@@ -48,18 +49,51 @@ export default async function handler(
       console.log(gptAnswer, "gptAnswer");
       await replyComment(youtube, {
         commentId: comment.snippet.topLevelComment.id as string,
-        text: `${comment.snippet.topLevelComment.snippet.authorDisplayName}, вот ответ нейросети: ${gptAnswer}`,
+        text: `${
+          comment.snippet.topLevelComment.snippet.authorDisplayName
+            ? `@${comment.snippet.topLevelComment.snippet.authorDisplayName} , н`
+            : "Н"
+        }ейросеть ответила: ${gptAnswer}`,
       });
     } else if (comment.replies?.comments?.length) {
-      // console.log("1", 1);
+      comment.replies.comments.reverse(); // reverse because we have date order fyl first is last
+
       const lastReply =
         comment.replies.comments[comment.replies.comments.length - 1];
       // console.log("lastReply", lastReply);
       if (lastReply.snippet && !isMyCommentSnippet(lastReply.snippet)) {
-        // TODO answer comment
         console.log(
           `Need to answer the replay "${lastReply.snippet.textOriginal}" of ${lastReply.snippet.authorDisplayName} from the "${comment.snippet.topLevelComment.snippet.textOriginal}" comment `
         );
+        const gptAnswer = await runCompletion({
+          messages: [
+            {
+              role: "user",
+              content: `Вы выступаете в роли создателя видео, который вежливо и ёмко отвечает на комментарии к своим видео.
+Вот первый комментарий: "${
+                comment.snippet.topLevelComment.snippet.textOriginal as string
+              }"
+В ответе необходимо вернуть только фактический ответ на комментарий`,
+            },
+            ...comment.replies.comments
+              .filter((c) => !!c.snippet)
+              .map((comment) => ({
+                role: (isMyCommentSnippet(comment.snippet!)
+                  ? "assistant"
+                  : "user") as ChatCompletionMessageParam["role"],
+                content: comment.snippet!.textOriginal! || "",
+              })),
+          ],
+        });
+        console.log(gptAnswer, "gptAnswer");
+        await replyComment(youtube, {
+          commentId: comment.snippet.topLevelComment.id as string,
+          text: `${
+            lastReply.snippet.authorDisplayName
+              ? `@${lastReply.snippet.authorDisplayName} , н`
+              : "Н"
+          }ейросеть ответила: ${gptAnswer}`,
+        });
       }
     }
   }
