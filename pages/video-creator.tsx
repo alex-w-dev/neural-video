@@ -193,7 +193,10 @@ export default observer(function VideoCreator() {
             "No Description"
           )}
         </div>
-        <div>{currentVideoStore.youtubeTitle}</div>
+        <div>
+          (length: {currentVideoStore.youtubeTitle.length})
+          {currentVideoStore.youtubeTitle}
+        </div>
         <div>
           {currentVideoStore.youtubeDescription ? (
             <>(Youtube Description) {currentVideoStore.youtubeDescription}</>
@@ -222,7 +225,7 @@ export default observer(function VideoCreator() {
                     style={{ opacity: fragmentIsLoading ? ".5" : "1" }}
                   >
                     <div>
-                      {fragment.fragment}{" "}
+                      ({fragment.fragment.length}){fragment.fragment}{" "}
                       <button
                         disabled={fragmentIsLoading}
                         onClick={() => onRegeneratePrompt(fragment)}

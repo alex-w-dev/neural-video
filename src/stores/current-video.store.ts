@@ -136,7 +136,7 @@ export class CurrentVideoStore {
     // );
     const separatedText = splitTextToSentences(
       currentVideoStore.scientistAnswer,
-      30
+      45
     );
     currentVideoStore.initFragments(separatedText);
     console.log("Separated text is: ", separatedText);
