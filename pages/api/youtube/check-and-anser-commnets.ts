@@ -50,8 +50,6 @@ export default async function handler(
         commentId: comment.snippet.topLevelComment.id as string,
         text: `${comment.snippet.topLevelComment.snippet.authorDisplayName}, вот ответ нейросети: ${gptAnswer}`,
       });
-
-      break;
     } else if (comment.replies?.comments?.length) {
       // console.log("1", 1);
       const lastReply =

@@ -94,6 +94,11 @@ export class Film {
 
     const a = () => {
       const now = Date.now();
+
+      if (now - lastRead < 17) {
+        return requestAnimationFrame(a);
+      }
+
       if (!this.isPlaying) {
         if (this.recordedCanvases[this.recordedCanvases.length - 1]) {
           this.recordedCanvases[this.recordedCanvases.length - 1].duration =

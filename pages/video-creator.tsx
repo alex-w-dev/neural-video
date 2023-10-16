@@ -30,20 +30,6 @@ export default observer(function VideoCreator() {
     await currentVideoStore.regenerateScientistAnswer();
     await currentVideoStore.regenerateScientistAnswerDescription();
     await currentVideoStore.remakeSeo();
-
-    // if (currentVideoStore.scientistAnswer.length > 600) {
-    //   console.log(
-    //     `Making scientist's answer (${currentVideoStore.scientistAnswer.length}) shorter...`
-    //   );
-    //   currentVideoStore.setScientistAnswer(
-    //     await getGptShorterText(currentVideoStore.scientistAnswer)
-    //   );
-    //
-    //   console.log(
-    //     `Now scientist answer length is ${currentVideoStore.scientistAnswer.length}: ${currentVideoStore.scientistAnswer}`
-    //   );
-    // }
-
     await currentVideoStore.splitScientistAnswerToFrames();
 
     setMakingVideo(false);
@@ -138,13 +124,24 @@ export default observer(function VideoCreator() {
     }
   }, []);
 
+  const onClearAllData = useCallback(() => {
+    const prompt = currentVideoStore.prompt;
+    currentVideoStore.clearAllData();
+    currentVideoStore.setPrompt(prompt);
+  }, []);
+
+  const onFullDataGeneration = useCallback(async () => {
+    onClearAllData();
+    await onGenerate();
+    await onRenewFrames();
+    await onRenewFramesData();
+  }, [onClearAllData, onGenerate, onRenewFrames, onRenewFramesData]);
+
   return (
     <JustInClient>
       <Main>
         <h1>Video Creator</h1>
-        <button onClick={() => currentVideoStore.clearAllData()}>
-          Clear ALL DATA
-        </button>
+        <button onClick={onClearAllData}>Clear ALL DATA</button>
         <Form>
           <textarea
             disabled={makingVideo}
@@ -154,9 +151,15 @@ export default observer(function VideoCreator() {
               currentVideoStore.setPrompt(e.target.value)
             )}
           />
-          <button disabled={makingVideo} onClick={onGenerate}>
-            Answer
-          </button>
+          <div>
+            <button disabled={makingVideo} onClick={onGenerate}>
+              Just Answer
+            </button>
+            <hr />
+            <button disabled={makingVideo} onClick={onFullDataGeneration}>
+              Answer completely!
+            </button>
+          </div>
         </Form>
         <div>
           {currentVideoStore.scientistAnswer ? (

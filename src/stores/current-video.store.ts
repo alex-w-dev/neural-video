@@ -1,10 +1,9 @@
-import { IObjectDidChange, makeAutoObservable, observe, toJS } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { localstorageClassSaver } from "@/src/utils/localsorage-class-saver";
 import { getGptSeparatedTextPrompt } from "@/src/utils/api/get-gpt-separated-text-prompt";
 import { getKandinskyMobileImage } from "@/src/utils/api/get-kandinsky-mobile-image";
 import { consoleImage } from "@/src/utils/console-image";
 import { getGptScientistAnswer } from "@/src/utils/api/get-gpt-scientist-answer";
-import { getGptSeparatedText } from "@/src/utils/api/get-gpt-separated-text";
 import { splitTextToSentences } from "@/src/utils/split-text-to-sentences";
 import { getSpeechSynthesis } from "@/src/utils/api/get-speech-synthesis";
 import { getAudioDuration } from "@/src/utils/get-audio-duration";
@@ -12,8 +11,7 @@ import { VideRecorderImage } from "@/src/components/video-recorder";
 import { getGptShorterText } from "@/src/utils/api/get-gpt-shorter-text";
 import { getGptYoutubeVideoDescription } from "@/src/utils/api/get-gpt-youtube-video-description";
 import { getGptYoutubeVideoKeywords } from "@/src/utils/api/get-gpt-youtube-video-keywords";
-
-type Fragment = { prompt?: string; fragment: string; imgSrc?: string };
+import { Fragment } from "@/src/stores/fragment.interface";
 
 export class CurrentVideoStore {
   public prompt: string = "";
@@ -144,9 +142,9 @@ export class CurrentVideoStore {
     console.log("Separated text is: ", separatedText);
   }
 
-  initFragments(fragmentTexts: string[]): void {
-    this.fragments = fragmentTexts.map((text) => ({
-      fragment: text,
+  initFragments(fragmentTexts: { fragment: string; sentence: string }[]): void {
+    this.fragments = fragmentTexts.map((fragment) => ({
+      ...fragment,
     }));
   }
 
@@ -176,7 +174,7 @@ export class CurrentVideoStore {
   async regenerateFramePrompt(fragment: Fragment): Promise<void> {
     console.log(`Getting prompt for text: ${fragment.fragment}...`);
     const prompt = await getGptSeparatedTextPrompt(
-      this.scientistAnswerDescription,
+      fragment.sentence,
       fragment.fragment
     );
     this.setFragmentPrompt(fragment, prompt);

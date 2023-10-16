@@ -1,23 +1,25 @@
+import { Fragment } from "@/src/stores/fragment.interface";
+
 export function splitTextToSentences(
   text: string,
-  sentenceLength: number
-): string[] {
-  const fullSentencesCount = Math.floor(text.length / sentenceLength);
-  const lastSentenceLength = text.length % sentenceLength;
-  sentenceLength =
-    sentenceLength + Math.ceil(lastSentenceLength / fullSentencesCount);
+  fragmentLength: number
+): Fragment[] {
+  const fullSentencesCount = Math.floor(text.length / fragmentLength);
+  const lastSentenceLength = text.length % fragmentLength;
+  fragmentLength =
+    fragmentLength + Math.ceil(lastSentenceLength / fullSentencesCount);
+  console.log(fragmentLength, "fragmentLength");
 
-  const result: string[] = [];
+  const sentences: string[] = [];
   let tempSentence = "";
 
+  // split to sentences
   for (let i = 0; i < text.length; i++) {
     if (
-      tempSentence.length >= sentenceLength &&
-      (text[i] === "," ||
-        text[i] === "." ||
-        (text[i] === "и" && text[i - 1] === " " && text[i + 1] === " "))
+      tempSentence.length >= 6 /* fix numbers as sentence */ &&
+      text[i] === "."
     ) {
-      result.push(tempSentence.trim());
+      sentences.push(tempSentence.trim());
       tempSentence = "";
 
       continue;
@@ -27,8 +29,35 @@ export function splitTextToSentences(
   }
 
   if (tempSentence) {
-    result.push(tempSentence);
+    sentences.push(tempSentence.trim());
   }
 
-  return result;
+  const fragments: Fragment[] = [];
+
+  // generate fragments
+  for (const sentence of sentences) {
+    let tempFragment = "";
+    for (let i = 0; i < sentence.length; i++) {
+      if (tempFragment.length >= fragmentLength && sentence[i] === " ") {
+        fragments.push({
+          sentence: sentence,
+          fragment: tempFragment.trim(),
+        });
+        tempFragment = "";
+
+        continue;
+      }
+
+      tempFragment += sentence[i];
+    }
+
+    if (tempFragment) {
+      fragments.push({
+        sentence,
+        fragment: tempFragment.trim(),
+      });
+    }
+  }
+
+  return fragments;
 }

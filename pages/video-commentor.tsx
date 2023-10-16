@@ -39,7 +39,7 @@ export default observer(function VideoCreator() {
     <JustInClient>
       <Main>
         <h1>Video Checker</h1>
-        <div>Last check ${lastCheck}</div>
+        <div>Last check {lastCheck}</div>
         <button onClick={onCommentsCheck}>Check Now</button>
       </Main>
     </JustInClient>
