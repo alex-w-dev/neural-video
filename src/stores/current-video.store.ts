@@ -174,7 +174,7 @@ export class CurrentVideoStore {
   async regenerateFramePrompt(fragment: Fragment): Promise<void> {
     console.log(`Getting prompt for text: ${fragment.fragment}...`);
     const prompt = await getGptSeparatedTextPrompt(
-      fragment.sentence,
+      `${this.prompt}, ${fragment.sentence}`,
       fragment.fragment
     );
     this.setFragmentPrompt(fragment, prompt);

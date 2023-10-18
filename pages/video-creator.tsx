@@ -27,7 +27,6 @@ export default observer(function VideoCreator() {
     }
     setMakingVideo(true);
 
-    await currentVideoStore.regenerateScientistAnswer();
     await currentVideoStore.regenerateScientistAnswerDescription();
     await currentVideoStore.remakeSeo();
     await currentVideoStore.splitScientistAnswerToFrames();
@@ -130,6 +129,19 @@ export default observer(function VideoCreator() {
     currentVideoStore.setPrompt(prompt);
   }, []);
 
+  const onJustAnswer = useCallback(async () => {
+    if (!currentVideoStore.prompt) {
+      return;
+    }
+    setMakingVideo(true);
+
+    onClearAllData();
+
+    await currentVideoStore.regenerateScientistAnswer();
+
+    setMakingVideo(false);
+  }, [onClearAllData]);
+
   const onFullDataGeneration = useCallback(async () => {
     onClearAllData();
     await onGenerate();
@@ -152,8 +164,12 @@ export default observer(function VideoCreator() {
             )}
           />
           <div>
-            <button disabled={makingVideo} onClick={onGenerate}>
+            <button disabled={makingVideo} onClick={onJustAnswer}>
               Just Answer
+            </button>
+            <hr />
+            <button disabled={makingVideo} onClick={onGenerate}>
+              Add SEO
             </button>
             <hr />
             <button disabled={makingVideo} onClick={onFullDataGeneration}>
