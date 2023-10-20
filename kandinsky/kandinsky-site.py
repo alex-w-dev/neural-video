@@ -164,6 +164,57 @@ api.add_resource(Quote, "/text2img", methods=['GET'])
 
 
 
+class Img2Img(Resource):
+    def get(self, id=0):
+        gc.collect()
+        torch.cuda.empty_cache()
+        args = request.args
+        result = []
+        strength = float(args.get('strength', 0.1))
+        originalH = int(args.get('h', 704))
+        originalW = int(args.get('w', 704))
+        squareSize = min(originalW, originalH)
+        prompt = args.get('prompt', 'random beautiful thing, 4k')
+        decoder_steps = int(args.get('decoder_steps', 50))
+        decoder_guidance_scale = float(args.get('guidance_scale', 7))
+        prior_steps = int(args.get('prior_steps', 50))
+        prior_guidance_scale = float(args.get('prior_cf_scale', 0.5))
+        negative_prior_prompt = args.get('negative_prior_prompt', "low quality, bad quality")
+        negative_decoder_prompt = args.get('negative_decoder_prompt', "low quality, bad quality")
+        image_name = args.get('image_name', 'b661cb45-726f-48ce-b7fd-0cc8ef388724_0.png')
+
+        #for i in range(int(args.get('images_count', 1))):
+        for i in range(int(args.get('images_count', 1))):
+            with torch.no_grad():
+                images = getModel("img2img").generate_img2img(
+                    prompt,
+                    Image.open(os.path.join(folder_path, image_name)),
+                    strength=strength,
+                    batch_size=1,
+                    decoder_steps = decoder_steps,
+                    prior_steps = prior_steps,
+                    decoder_guidance_scale = decoder_guidance_scale,
+                    prior_guidance_scale = prior_guidance_scale,
+                    h=originalH,
+                    w=originalW,
+                    negative_prior_prompt = negative_prior_prompt,
+                    negative_decoder_prompt = negative_decoder_prompt,
+                )
+
+            guid = uuid.uuid4()
+            file_name = f"{guid}_{i}.png"
+            file_path = os.path.join(folder_path, file_name)
+            images[0].save(file_path)
+            result.append({ 'file_path': file_path, 'file_name': file_name, 'folder_path': folder_path })
+            torch_gc()
+
+
+        return result
+
+api.add_resource(Img2Img, "/img2img", methods=['GET'])
+
+
+
 class MixImages(Resource):
     def get(self, id=0):
         gc.collect()
