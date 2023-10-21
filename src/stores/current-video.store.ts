@@ -12,6 +12,8 @@ import { getGptShorterText } from "@/src/utils/api/get-gpt-shorter-text";
 import { getGptYoutubeVideoDescription } from "@/src/utils/api/get-gpt-youtube-video-description";
 import { getGptYoutubeVideoKeywords } from "@/src/utils/api/get-gpt-youtube-video-keywords";
 import { Fragment } from "@/src/stores/fragment.interface";
+import { getImageSrcByName } from "@/src/utils/get-image-src-by-name";
+import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 
 export class CurrentVideoStore {
   public prompt: string = "";
@@ -27,10 +29,10 @@ export class CurrentVideoStore {
 
   get videRecorderImages(): VideRecorderImage[] {
     return this.fragments
-      .filter((fragment) => !!fragment.imgSrc)
+      .filter((fragment) => !!fragment.image)
       .map((fragment, index) => {
         return {
-          src: fragment.imgSrc!,
+          image: fragment.image!,
           id: index,
           title: fragment.fragment,
         };
@@ -98,8 +100,8 @@ export class CurrentVideoStore {
     fragment.prompt = prompt;
     this.setFragments([...this.fragments]);
   }
-  setFragmentImgSrc(fragment: Fragment, imgSrc: string): void {
-    fragment.imgSrc = imgSrc;
+  setFragmentImage(fragment: Fragment, image: KandinskyImage): void {
+    fragment.image = image;
     this.setFragments([...this.fragments]);
   }
 
@@ -150,12 +152,12 @@ export class CurrentVideoStore {
 
   async regenerateFrameImgSrc(fragment: Fragment): Promise<void> {
     console.log(`Getting image for prompt: ${fragment.prompt} ...`);
-    const src = await getKandinskyMobileImage(
+    const image = await getKandinskyMobileImage(
       fragment.prompt + ", высокое качетство, 4k"
     );
-    this.setFragmentImgSrc(fragment, src);
-    console.log(`Got ${src}:`);
-    await consoleImage(src, 100);
+    this.setFragmentImage(fragment, image);
+    console.log(`Got ${image.src}:`);
+    await consoleImage(image.src, 100);
   }
 
   async regenerateAudioSrc(): Promise<void> {

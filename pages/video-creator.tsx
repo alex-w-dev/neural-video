@@ -261,9 +261,9 @@ export default observer(function VideoCreator() {
                     </div>
                     <hr />
                     <div>
-                      {fragment.imgSrc ? (
+                      {fragment.image ? (
                         <>
-                          <img src={fragment.imgSrc} alt="" />
+                          <img src={fragment.image.src} alt="" />
                         </>
                       ) : null}
                     </div>

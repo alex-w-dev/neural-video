@@ -10,9 +10,10 @@ import { dataURItoFile } from "@/src/utils/data-u-r-ito-file";
 import { Film } from "@/src/film/film.class";
 import { ScientistAnswerAnimation } from "@/src/film/animations/scientist-answer.animation";
 import { VideRecorderOnReadyData } from "@/src/interfaces/common";
+import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 
 export type VideRecorderImage = {
-  src: string;
+  image: KandinskyImage;
   id: number;
   title: string;
 };
@@ -70,7 +71,7 @@ export function VideoRecorder({
       images.map((i) => {
         const img = document.createElement("img");
         img.crossOrigin = "anonymous";
-        img.src = i.src;
+        img.src = i.image.src;
         return {
           image: img,
           title: i.title,
