@@ -45,6 +45,17 @@ export default observer(function VideoCreator() {
     setMakingVideo(false);
   }, []);
 
+  const onGenerateTransitions = useCallback(async () => {
+    if (!currentVideoStore.prompt) {
+      return;
+    }
+    setMakingVideo(true);
+
+    await currentVideoStore.regenerateFragmentMiddleTransitions();
+
+    setMakingVideo(false);
+  }, []);
+
   const onRenewFramesData = useCallback(async () => {
     if (!currentVideoStore.prompt) {
       return;
@@ -57,7 +68,7 @@ export default observer(function VideoCreator() {
     setMakingVideo(false);
   }, []);
 
-  const onRenewFramesTransitions = useCallback(async () => {
+  const onRenewFramesPreFrames = useCallback(async () => {
     if (!currentVideoStore.prompt) {
       return;
     }
@@ -261,11 +272,23 @@ export default observer(function VideoCreator() {
               <button disabled={makingVideo} onClick={onRenewFramesData}>
                 Renew all frames Data
               </button>
-              <button disabled={makingVideo} onClick={onRenewFramesTransitions}>
-                Renew all frames TRANSITIONS
+              <button disabled={makingVideo} onClick={onRenewFramesPreFrames}>
+                Renew all frames preFrames
               </button>
+              {/*              <button disabled={makingVideo} onClick={onGenerateTransitions}>
+                Renew all frames middle TRANSITIONS
+              </button>*/}
               {currentVideoStore.fragments.map((fragment) => {
                 const fragmentIsLoading = fragment === loadingFragment;
+                const nexFragment =
+                  currentVideoStore.fragments[
+                    currentVideoStore.fragments.indexOf(fragment) + 1
+                  ] || currentVideoStore.fragments[0];
+                const fragmentMiddleTransition =
+                  currentVideoStore.getFramesTransitionMiddle(
+                    fragment,
+                    nexFragment
+                  );
                 return (
                   <div
                     key={fragment.fragment}
@@ -297,29 +320,38 @@ export default observer(function VideoCreator() {
                       </button>
                     </div>
                     <hr />
-                    <TransitionImagesContainer>
-                      {fragment.transitPreImages
-                        ? fragment.transitPreImages.map((image) => (
-                            <img key={image.src} src={image.src} alt="" />
-                          ))
-                        : null}
-                    </TransitionImagesContainer>
+
                     <hr />
-                    <div>
+                    <SomeContainer>
                       {fragment.image ? (
-                        <>
-                          <img src={fragment.image.src} alt="" />
-                        </>
+                        <img src={fragment.image.src} alt="" />
                       ) : null}
-                    </div>
-                    <hr />
-                    <TransitionImagesContainer>
-                      {fragment.transitPostImages
-                        ? fragment.transitPostImages.map((image) => (
+                      <TransitionImagesContainer>
+                        {fragment.transitPostImages ? (
+                          fragment.transitPostImages.map((image) => (
                             <img key={image.src} src={image.src} alt="" />
                           ))
-                        : null}
-                    </TransitionImagesContainer>
+                        ) : (
+                          <strong>No Post Images</strong>
+                        )}
+
+                        {/*{fragmentMiddleTransition ? (
+                          fragmentMiddleTransition.images.map((image) => (
+                            <img key={image.src} src={image.src} alt="" />
+                          ))
+                        ) : (
+                          <strong>No Middle</strong>
+                        )}*/}
+
+                        {nexFragment.transitPreImages ? (
+                          nexFragment.transitPreImages.map((image) => (
+                            <img key={image.src} src={image.src} alt="" />
+                          ))
+                        ) : (
+                          <strong>No Pre images</strong>
+                        )}
+                      </TransitionImagesContainer>
+                    </SomeContainer>
                   </div>
                 );
               })}
@@ -399,10 +431,24 @@ const Form = styled.div`
   }
 `;
 
+const SomeContainer = styled.div`
+  width: 800px;
+  display: flex;
+`;
+
 const TransitionImagesContainer = styled.div`
   display: flex;
   flex-wrap: nowrap;
   overflow-y: auto;
+
+  strong {
+    min-width: 200px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: bisque;
+  }
 
   img {
     width: 400px;
@@ -416,7 +462,7 @@ const FramesContainer = styled.div`
   gap: 10px;
 
   & > div {
-    min-width: 400px;
+    width: 800px;
   }
 
   img {

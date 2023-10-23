@@ -19,13 +19,13 @@ export default function TestKandinskyMixImages() {
     setMakingRequest(true);
 
     const result = await fetch(
-      `http://localhost:5000/mixImages?prior_cf_scale=${priorCFScale}&guidance_scale=${guidanceScale}&images_count=${imagesCount}&prior_steps=${priorSteps}&decoder_steps=${decoderSteps}`
+      `http://localhost:5000/mixImages?prior_cf_scale=${priorCFScale}&guidance_scale=${guidanceScale}&prior_steps=${priorSteps}&decoder_steps=${decoderSteps}`
     );
     const data = await result.json();
 
     setMakingRequest(false);
     setImgs(data.map((i: any) => `http://localhost:5000/img/${i.file_name}`));
-  }, [priorCFScale, priorSteps, decoderSteps, guidanceScale, imagesCount]);
+  }, [priorCFScale, priorSteps, decoderSteps, guidanceScale]);
 
   return (
     <Main>

@@ -15,12 +15,15 @@ import { Fragment } from "@/src/stores/fragment.interface";
 import { getImageSrcByName } from "@/src/utils/get-image-src-by-name";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 import { getKandinskyMobileImageTransformation } from "@/src/utils/api/get-kandinsky-mobile-image-transformation";
+import { FragmentTransition } from "@/src/stores/fragment-transition.interface";
+import { getKandinskyMobileMixedImages } from "@/src/utils/api/get-kandinsky-mobile-mixed-images";
 
 export class CurrentVideoStore {
   public prompt: string = "";
   public scientistAnswer: string = "";
   public scientistAnswerDescription: string = "";
   public fragments: Array<Fragment> = [];
+  public fragmentTransitions: Array<FragmentTransition> = [];
   public audioSrc: string = "";
   public audioFilePath: string = "";
   public audioDurationMs: number = 0;
@@ -73,6 +76,7 @@ export class CurrentVideoStore {
       "audioDurationMs",
       "youtubeKeywords",
       "youtubeDescription",
+      "fragmentTransitions",
     ]);
   }
 
@@ -81,6 +85,7 @@ export class CurrentVideoStore {
     this.scientistAnswer = "";
     this.scientistAnswerDescription = "";
     this.fragments = [];
+    this.fragmentTransitions = [];
     this.audioSrc = "";
     this.audioFilePath = "";
     this.audioDurationMs = 0;
@@ -95,6 +100,10 @@ export class CurrentVideoStore {
 
   setFragments(fragments: Fragment[]): void {
     this.fragments = fragments;
+  }
+
+  setFragmentTransitions(transitions: FragmentTransition[]): void {
+    this.fragmentTransitions = transitions;
   }
 
   setFragmentPrompt(fragment: Fragment, prompt: string): void {
@@ -248,6 +257,63 @@ export class CurrentVideoStore {
     for (const fragment of this.fragments) {
       await this.regenerateFramePrompt(fragment);
       await this.regenerateFrameImgSrc(fragment);
+    }
+  }
+
+  getFramesTransitionMiddle(
+    preFragment: Fragment,
+    postFragment: Fragment
+  ): FragmentTransition | undefined {
+    return this.fragmentTransitions.find(
+      (ft) => ft.preFragment === preFragment && ft.postFragment === postFragment
+    );
+  }
+
+  async regenerateFragmentMiddleTransition(
+    preFragment: Fragment,
+    postFragment: Fragment
+  ): Promise<void> {
+    if (!preFragment.image || !postFragment.image) {
+      return alert("no images in mixable fragments");
+    }
+    {
+      // remove existing
+      const existing = this.getFramesTransitionMiddle(
+        preFragment,
+        postFragment
+      );
+      if (existing) {
+        this.setFragmentTransitions(
+          this.fragmentTransitions.filter((ft) => ft !== existing)
+        );
+      }
+    }
+
+    console.log(
+      `getting images between "${preFragment.prompt}" and  "${postFragment.prompt}"`
+    );
+    const images = await getKandinskyMobileMixedImages(
+      preFragment.image.fileName,
+      postFragment.image.fileName
+    );
+
+    this.setFragmentTransitions([
+      ...this.fragmentTransitions,
+      {
+        postFragment,
+        preFragment,
+        images,
+      },
+    ]);
+  }
+
+  async regenerateFragmentMiddleTransitions(): Promise<void> {
+    console.log("Regenerate fragment transitions");
+    for (const fragment of this.fragments) {
+      const postFrame =
+        this.fragments[this.fragments.indexOf(fragment) + 1] ||
+        this.fragments[0];
+      await this.regenerateFragmentMiddleTransition(fragment, postFrame);
     }
   }
 

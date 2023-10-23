@@ -14,7 +14,9 @@ export function localstorageClassSaver<T extends Object>(
     if (savedString) {
       const toLoad = JSON.parse(savedString);
       savePropertiesToLocalStorage.forEach((propertyName) => {
-        target[propertyName] = toLoad[propertyName];
+        if (toLoad[propertyName] !== undefined) {
+          target[propertyName] = toLoad[propertyName];
+        }
       });
     }
   } catch (e) {

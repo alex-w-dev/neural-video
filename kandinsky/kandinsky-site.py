@@ -231,9 +231,16 @@ class MixImages(Resource):
         negative_prior_prompt = args.get('negative_prior_prompt', "low quality, bad quality")
         negative_decoder_prompt = args.get('negative_decoder_prompt', "low quality, bad quality")
 
-        images_texts = [Image.open(os.path.join(folder_path, 'b661cb45-726f-48ce-b7fd-0cc8ef388724_0.png')),Image.open(os.path.join(folder_path, '03a5c50c-b9ef-42e5-a1c3-e1a988369c91_0.png'))]
 
-        weights = [0.5, 0.5]
+        imageFileName1 = args.get('image_file_name1', 'b661cb45-726f-48ce-b7fd-0cc8ef388724_0.png')
+        imageFileName2 = args.get('image_file_name2', '03a5c50c-b9ef-42e5-a1c3-e1a988369c91_0.png')
+        weight1 = float(args.get('weight1', 0.5))
+        weight2 = float(args.get('weight2', 0.5))
+
+
+
+        images_texts = [Image.open(os.path.join(folder_path, imageFileName1)),Image.open(os.path.join(folder_path, imageFileName2))]
+        weights = [weight1, weight2]
 
         with torch.no_grad():
             images = getModel("text2img").mix_images(
