@@ -5,4 +5,6 @@ export type Fragment = {
   fragment: string;
   sentence: string;
   image?: KandinskyImage;
+  transitPreImages?: KandinskyImage[];
+  transitPostImages?: KandinskyImage[];
 };

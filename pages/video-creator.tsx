@@ -51,7 +51,19 @@ export default observer(function VideoCreator() {
     }
     setMakingVideo(true);
 
-    await currentVideoStore.regenerateFramesContents();
+    await currentVideoStore.clearFragmentImages();
+    await currentVideoStore.regenerateFramesPromptsAndImages();
+
+    setMakingVideo(false);
+  }, []);
+
+  const onRenewFramesTransitions = useCallback(async () => {
+    if (!currentVideoStore.prompt) {
+      return;
+    }
+    setMakingVideo(true);
+
+    await currentVideoStore.regenerateFramesImagesTransition();
 
     setMakingVideo(false);
   }, []);
@@ -68,6 +80,15 @@ export default observer(function VideoCreator() {
     await currentVideoStore.regenerateFrameImgSrc(fragment);
     setLoadingFragment(null);
   }, []);
+
+  const onRegenerateImageTransition = useCallback(
+    async (fragment: Fragment) => {
+      setLoadingFragment(fragment);
+      await currentVideoStore.regenerateFrameTransitImages(fragment);
+      setLoadingFragment(null);
+    },
+    []
+  );
 
   const onRegenerateAudio = useCallback(async () => {
     setMakingVideo(true);
@@ -144,10 +165,17 @@ export default observer(function VideoCreator() {
 
   const onFullDataGeneration = useCallback(async () => {
     onClearAllData();
+    await onJustAnswer();
     await onGenerate();
     await onRenewFrames();
     await onRenewFramesData();
-  }, [onClearAllData, onGenerate, onRenewFrames, onRenewFramesData]);
+  }, [
+    onJustAnswer,
+    onClearAllData,
+    onGenerate,
+    onRenewFrames,
+    onRenewFramesData,
+  ]);
 
   return (
     <JustInClient>
@@ -233,6 +261,9 @@ export default observer(function VideoCreator() {
               <button disabled={makingVideo} onClick={onRenewFramesData}>
                 Renew all frames Data
               </button>
+              <button disabled={makingVideo} onClick={onRenewFramesTransitions}>
+                Renew all frames TRANSITIONS
+              </button>
               {currentVideoStore.fragments.map((fragment) => {
                 const fragmentIsLoading = fragment === loadingFragment;
                 return (
@@ -258,7 +289,21 @@ export default observer(function VideoCreator() {
                       >
                         New Image
                       </button>
+                      <button
+                        disabled={fragmentIsLoading}
+                        onClick={() => onRegenerateImageTransition(fragment)}
+                      >
+                        Regenerate image Transition
+                      </button>
                     </div>
+                    <hr />
+                    <TransitionImagesContainer>
+                      {fragment.transitPreImages
+                        ? fragment.transitPreImages.map((image) => (
+                            <img key={image.src} src={image.src} alt="" />
+                          ))
+                        : null}
+                    </TransitionImagesContainer>
                     <hr />
                     <div>
                       {fragment.image ? (
@@ -267,6 +312,14 @@ export default observer(function VideoCreator() {
                         </>
                       ) : null}
                     </div>
+                    <hr />
+                    <TransitionImagesContainer>
+                      {fragment.transitPostImages
+                        ? fragment.transitPostImages.map((image) => (
+                            <img key={image.src} src={image.src} alt="" />
+                          ))
+                        : null}
+                    </TransitionImagesContainer>
                   </div>
                 );
               })}
@@ -343,6 +396,16 @@ const Form = styled.div`
   textarea {
     min-width: 80vw;
     height: 86px;
+  }
+`;
+
+const TransitionImagesContainer = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-y: auto;
+
+  img {
+    width: 400px;
   }
 `;
 

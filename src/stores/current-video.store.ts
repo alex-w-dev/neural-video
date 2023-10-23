@@ -14,6 +14,7 @@ import { getGptYoutubeVideoKeywords } from "@/src/utils/api/get-gpt-youtube-vide
 import { Fragment } from "@/src/stores/fragment.interface";
 import { getImageSrcByName } from "@/src/utils/get-image-src-by-name";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
+import { getKandinskyMobileImageTransformation } from "@/src/utils/api/get-kandinsky-mobile-image-transformation";
 
 export class CurrentVideoStore {
   public prompt: string = "";
@@ -104,6 +105,21 @@ export class CurrentVideoStore {
     fragment.image = image;
     this.setFragments([...this.fragments]);
   }
+  setFragmentTransformPreImages(
+    fragment: Fragment,
+    images: KandinskyImage[]
+  ): void {
+    fragment.transitPreImages = images;
+    this.setFragments([...this.fragments]);
+  }
+
+  setFragmentTransformPostImages(
+    fragment: Fragment,
+    images: KandinskyImage[]
+  ): void {
+    fragment.transitPostImages = images;
+    this.setFragments([...this.fragments]);
+  }
 
   setScientistAnswer(scientistAnswer: string): void {
     this.scientistAnswer = scientistAnswer;
@@ -160,6 +176,40 @@ export class CurrentVideoStore {
     await consoleImage(image.src, 100);
   }
 
+  async regenerateFrameTransitImages(fragment: Fragment): Promise<void> {
+    if (!fragment.image) {
+      return alert(`no image for fragment ${fragment.fragment}`);
+    }
+    {
+      const nextFrame =
+        this.fragments[this.fragments.indexOf(fragment) + 1] ||
+        this.fragments[0];
+      console.log(
+        `Getting image from prompt${fragment.prompt} to ${nextFrame.prompt} ...`
+      );
+      const postImages = await getKandinskyMobileImageTransformation(
+        fragment.image.fileName,
+        nextFrame.prompt + ", высокое качетство, 4k"
+      );
+      this.setFragmentTransformPostImages(fragment, postImages);
+      console.log(`Got ${postImages.length} images`);
+    }
+    {
+      const preFrame =
+        this.fragments[this.fragments.indexOf(fragment) - 1] ||
+        this.fragments[this.fragments.length - 1];
+      console.log(
+        `Getting image from prompt${fragment.prompt} to ${preFrame.prompt} ...`
+      );
+      const preImages = await getKandinskyMobileImageTransformation(
+        fragment.image.fileName,
+        preFrame.prompt + ", высокое качетство, 4k"
+      );
+      this.setFragmentTransformPreImages(fragment, preImages.reverse());
+      console.log(`Got ${preImages.length} images`);
+    }
+  }
+
   async regenerateAudioSrc(): Promise<void> {
     console.log(
       `Getting audio for scientist answer: ${this.scientistAnswer} ...`
@@ -182,11 +232,29 @@ export class CurrentVideoStore {
     this.setFragmentPrompt(fragment, prompt);
   }
 
-  async regenerateFramesContents(): Promise<void> {
+  clearFragmentImages(): void {
+    console.log("Getting  prompts and images to text fragments");
+    for (const fragment of this.fragments) {
+      fragment.prompt = undefined;
+      fragment.image = undefined;
+      fragment.transitPreImages = undefined;
+      fragment.transitPostImages = undefined;
+    }
+    this.fragments = [...this.fragments];
+  }
+
+  async regenerateFramesPromptsAndImages(): Promise<void> {
     console.log("Getting  prompts and images to text fragments");
     for (const fragment of this.fragments) {
       await this.regenerateFramePrompt(fragment);
       await this.regenerateFrameImgSrc(fragment);
+    }
+  }
+
+  async regenerateFramesImagesTransition(): Promise<void> {
+    console.log("Getting  prompts and images to text fragments");
+    for (const fragment of this.fragments) {
+      await this.regenerateFrameTransitImages(fragment);
     }
   }
 
