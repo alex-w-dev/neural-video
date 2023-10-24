@@ -9,6 +9,7 @@ import {
 
 import { cloneCanvas } from "@/src/utils/clone-canvas";
 import { FilmAnimation } from "@/src/film/animations/film-animation";
+import { MOBILE_VIDEO_HEIGHT, MOBILE_VIDEO_WIDTH } from "@/src/constants/sizes";
 
 type FilmImage = { image: ImageSource; title: string };
 
@@ -34,21 +35,7 @@ export class Film {
 
     this.imagesSpriteContainer.addChild(
       ...this.images.map((img, index) => {
-        const texture = new Texture(new BaseTexture(img.image));
-
-        texture.width;
-        console.log("texture.baseTexture.width", texture.width);
-        // const sprite = new TilingSprite(texture, VIDEO_WIDTH, VIDEO_HEIGHT);
-
-        const sprite = new Sprite(texture);
-
-        sprite.width = 1080;
-        sprite.height = 1920;
-        sprite.anchor.x = 0.5;
-        sprite.anchor.y = 0.5;
-        sprite.x = 1080 / 2;
-        sprite.y = 1920 / 2;
-
+        const sprite = this.getSpriteFromImg(img.image);
         sprite.renderable = index === 0;
 
         return sprite;
@@ -56,10 +43,26 @@ export class Film {
     );
   }
 
-  play({
+  getSpriteFromImg(image: ImageSource): Sprite {
+    const texture = new Texture(new BaseTexture(image));
+    const sprite = new Sprite(texture);
+
+    sprite.width = MOBILE_VIDEO_WIDTH;
+    sprite.height = MOBILE_VIDEO_HEIGHT;
+    sprite.anchor.x = 0.5;
+    sprite.anchor.y = 0.5;
+    sprite.x = MOBILE_VIDEO_WIDTH / 2;
+    sprite.y = MOBILE_VIDEO_HEIGHT / 2;
+
+    return sprite;
+  }
+
+  async play({
+    onStart,
     onStop,
     filmAnimationClass,
   }: {
+    onStart: () => void;
     onStop: () => void;
     filmAnimationClass: typeof FilmAnimation;
   }) {
@@ -75,6 +78,9 @@ export class Film {
     this.recordedCanvases = [];
     this.isPlaying = true;
 
+    await animation.beforePlay();
+
+    onStart();
     animation.play();
     this.startRecording();
 

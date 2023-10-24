@@ -11,6 +11,7 @@ import { Film } from "@/src/film/film.class";
 import { ScientistAnswerAnimation } from "@/src/film/animations/scientist-answer.animation";
 import { VideRecorderOnReadyData } from "@/src/interfaces/common";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
+import { getHtmlImg } from "@/src/utils/get-html-img";
 
 export type VideRecorderImage = {
   image: KandinskyImage;
@@ -69,9 +70,7 @@ export function VideoRecorder({
 
     film?.setImages(
       images.map((i) => {
-        const img = document.createElement("img");
-        img.crossOrigin = "anonymous";
-        img.src = i.image.src;
+        const img = getHtmlImg(i.image.src);
         return {
           image: img,
           title: i.title,
@@ -85,10 +84,11 @@ export function VideoRecorder({
     // just wait for pixi initialize images and render
     setTimeout(() => {
       try {
-        audio.play();
-
         film?.play({
           filmAnimationClass: ScientistAnswerAnimation,
+          onStart: () => {
+            audio.play();
+          },
           onStop: () => {
             setIsPlaying(false);
             audio.pause();

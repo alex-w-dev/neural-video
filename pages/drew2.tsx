@@ -80,10 +80,11 @@ export default function Drew() {
     // just wait for pixi initialize images and render
     setTimeout(() => {
       try {
-        audio.play();
-
         film?.play({
           filmAnimationClass: StopGameAnimation,
+          onStart: () => {
+            audio.play();
+          },
           onStop: () => {
             setIsPlaying(false);
             audio.pause();

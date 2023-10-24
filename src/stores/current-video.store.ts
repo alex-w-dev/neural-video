@@ -185,14 +185,24 @@ export class CurrentVideoStore {
     await consoleImage(image.src, 100);
   }
 
+  getNextFragment(fragment: Fragment): Fragment {
+    return (
+      this.fragments[this.fragments.indexOf(fragment) + 1] || this.fragments[0]
+    );
+  }
+  getPreviousFragment(fragment: Fragment): Fragment {
+    return (
+      this.fragments[this.fragments.indexOf(fragment) - 1] ||
+      this.fragments[this.fragments.length - 1]
+    );
+  }
+
   async regenerateFrameTransitImages(fragment: Fragment): Promise<void> {
     if (!fragment.image) {
       return alert(`no image for fragment ${fragment.fragment}`);
     }
     {
-      const nextFrame =
-        this.fragments[this.fragments.indexOf(fragment) + 1] ||
-        this.fragments[0];
+      const nextFrame = this.getNextFragment(fragment);
       console.log(
         `Getting image from prompt${fragment.prompt} to ${nextFrame.prompt} ...`
       );
@@ -204,9 +214,7 @@ export class CurrentVideoStore {
       console.log(`Got ${postImages.length} images`);
     }
     {
-      const preFrame =
-        this.fragments[this.fragments.indexOf(fragment) - 1] ||
-        this.fragments[this.fragments.length - 1];
+      const preFrame = this.getPreviousFragment(fragment);
       console.log(
         `Getting image from prompt${fragment.prompt} to ${preFrame.prompt} ...`
       );
@@ -310,9 +318,7 @@ export class CurrentVideoStore {
   async regenerateFragmentMiddleTransitions(): Promise<void> {
     console.log("Regenerate fragment transitions");
     for (const fragment of this.fragments) {
-      const postFrame =
-        this.fragments[this.fragments.indexOf(fragment) + 1] ||
-        this.fragments[0];
+      const postFrame = this.getNextFragment(fragment);
       await this.regenerateFragmentMiddleTransition(fragment, postFrame);
     }
   }

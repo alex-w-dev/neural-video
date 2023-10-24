@@ -4,6 +4,8 @@ export class FilmAnimation {
   isPlaying = false;
   constructor(protected film: Film) {}
 
+  async beforePlay(): Promise<void> {}
+
   play(): void {}
   stop(): void {
     this.isPlaying = false;

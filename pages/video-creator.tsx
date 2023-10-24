@@ -280,15 +280,8 @@ export default observer(function VideoCreator() {
               </button>*/}
               {currentVideoStore.fragments.map((fragment) => {
                 const fragmentIsLoading = fragment === loadingFragment;
-                const nexFragment =
-                  currentVideoStore.fragments[
-                    currentVideoStore.fragments.indexOf(fragment) + 1
-                  ] || currentVideoStore.fragments[0];
-                const fragmentMiddleTransition =
-                  currentVideoStore.getFramesTransitionMiddle(
-                    fragment,
-                    nexFragment
-                  );
+                const nexFragment = currentVideoStore.getNextFragment(fragment);
+
                 return (
                   <div
                     key={fragment.fragment}

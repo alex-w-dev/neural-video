@@ -2,7 +2,7 @@ import { getEnText } from "@/src/utils/get-en-text";
 import { MOBILE_IMAGE_HEIGHT, MOBILE_IMAGE_WIDTH } from "@/src/constants/sizes";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 import { KandinskyTxt2ImgReturns } from "@/src/dto/kandinsky-txt-2-img-returns";
-import { getImageSrcByName } from "@/src/utils/get-image-src-by-name";
+import { getKandinskyImageFromReturns } from "@/src/utils/get-kandinsky-image-from-returns";
 
 export async function getKandinskyMobileImage(
   prompt: string
@@ -15,9 +15,5 @@ export async function getKandinskyMobileImage(
   );
   const data: KandinskyTxt2ImgReturns[] = await result.json();
 
-  return {
-    src: getImageSrcByName(data[0].file_name),
-    fileName: data[0].file_name,
-    filePath: data[0].file_path,
-  };
+  return getKandinskyImageFromReturns(data[0]);
 }
