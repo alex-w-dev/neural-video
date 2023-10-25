@@ -221,7 +221,13 @@ export default observer(function VideoCreator() {
             <>
               (length: {currentVideoStore.scientistAnswer.length})(time:{" "}
               {Math.round(currentVideoStore.scientistAnswer.length / 15.5)}sec){" "}
-              {currentVideoStore.scientistAnswer}
+              <textarea
+                onChange={(e) => {
+                  currentVideoStore.setScientistAnswer(e.target.value);
+                }}
+                value={currentVideoStore.scientistAnswer}
+                className="h100"
+              />
               <div>
                 <button disabled={makingVideo} onClick={onReMakeDescription}>
                   Renew description
@@ -298,7 +304,17 @@ export default observer(function VideoCreator() {
                     </div>
                     <hr />
                     <div>
-                      {fragment.prompt || "No Prompt"}{" "}
+                      {(
+                        <textarea
+                          onChange={(e) => {
+                            currentVideoStore.setFragmentPrompt(
+                              fragment,
+                              e.target.value
+                            );
+                          }}
+                          value={fragment.prompt}
+                        />
+                      ) || "No Prompt"}{" "}
                       <button
                         disabled={fragmentIsLoading}
                         onClick={() => onRegenerateImage(fragment)}
@@ -468,4 +484,19 @@ const Main = styled.div`
   flex-direction: column;
   gap: 20px;
   align-items: center;
+
+  & > div {
+    width: 100%;
+  }
+
+  textarea {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #093b0d;
+  }
+  .h100 {
+    height: 100px;
+  }
 `;

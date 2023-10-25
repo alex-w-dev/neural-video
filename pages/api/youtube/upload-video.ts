@@ -42,7 +42,8 @@ export default async function handler(
         defaultAudioLanguage: "ru",
       },
       status: {
-        privacyStatus: "public",
+        publishAt: new Date(new Date().setHours(18)).toISOString(),
+        privacyStatus: "private",
       },
     },
     media: {
