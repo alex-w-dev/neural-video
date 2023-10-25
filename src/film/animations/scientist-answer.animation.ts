@@ -23,7 +23,7 @@ export class ScientistAnswerAnimation extends FilmAnimation {
     this.imgSrcToSprite.set(src, sprite);
   }
 
-  switchOnFragment(fragment: Fragment): void {
+  async switchOnFragment(fragment: Fragment): Promise<void> {
     const previousFragment = currentVideoStore.getPreviousFragment(fragment);
     const previousFrameLast1 = this.imgSrcToSprite.get(
       previousFragment.transitPostImages![
@@ -82,20 +82,90 @@ export class ScientistAnswerAnimation extends FilmAnimation {
       step++;
     };
 
-    const interval = setInterval(() => {
-      if (!otherSprites.length) {
-        clearInterval(interval);
-        console.log(22222, "22222");
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (!otherSprites.length) {
+          if (currenSprite) {
+            currenSprite.renderable = false;
+          }
+
+          this.imgSrcToSprite.get(fragment.image!.src)!.renderable = true;
+          clearInterval(interval);
+          resolve();
+        } else {
+          nextStep();
+        }
+      }, 100);
+      nextStep();
+    });
+  }
+
+  async switchOffFragment(fragment: Fragment): Promise<void> {
+    const nextFragment = currentVideoStore.getNextFragment(fragment);
+    const nextFrameTransit1 = this.imgSrcToSprite.get(
+      nextFragment.transitPreImages![0].src
+    );
+    const nextFrameTransit2 = this.imgSrcToSprite.get(
+      nextFragment.transitPreImages![1].src
+    );
+    const myFrameLast3 = this.imgSrcToSprite.get(
+      fragment.transitPostImages![fragment.transitPostImages!.length - 4].src
+    );
+    const myFrameLast4 = this.imgSrcToSprite.get(
+      fragment.transitPostImages![fragment.transitPostImages!.length - 3].src
+    );
+    const otherSprites = fragment
+      .transitPostImages!.slice(0, -4)
+      .map((img) => this.imgSrcToSprite.get(img.src));
+    let currenSprite: Sprite | undefined;
+    let lastRender = 0;
+    const nextStep = () => {
+      if (otherSprites.length) {
         if (currenSprite) {
           currenSprite.renderable = false;
         }
-
-        this.imgSrcToSprite.get(fragment.image!.src)!.renderable = true;
+        currenSprite = otherSprites.shift();
+        if (currenSprite) {
+          currenSprite.renderable = true;
+        }
       } else {
-        nextStep();
+        lastRender++;
+        if (lastRender === 1) {
+          if (currenSprite) {
+            currenSprite.renderable = false;
+          }
+          console.log(-2, "-2");
+          nextFrameTransit1!.renderable = true;
+          nextFrameTransit1!.alpha = 0.2;
+          myFrameLast3!.renderable = true;
+          myFrameLast3!.alpha = 0.8;
+        } else {
+          nextFrameTransit1!.renderable = false;
+          myFrameLast3!.renderable = false;
+          nextFrameTransit2!.renderable = true;
+          nextFrameTransit2!.alpha = 0.4;
+          myFrameLast4!.renderable = true;
+          myFrameLast4!.alpha = 0.6;
+        }
       }
-    }, 100);
-    nextStep();
+    };
+
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (lastRender === 2) {
+          nextFrameTransit2!.renderable = false;
+          myFrameLast4!.renderable = false;
+
+          clearInterval(interval);
+          resolve();
+        } else {
+          nextStep();
+        }
+      }, 100);
+
+      this.imgSrcToSprite.get(fragment.image!.src)!.renderable = false;
+      nextStep();
+    });
   }
 
   playGptAddAnimation() {
@@ -181,10 +251,12 @@ export class ScientistAnswerAnimation extends FilmAnimation {
     this.isPlaying = true;
     const start = Date.now();
     let lastRenderedImageIndex = -1;
+    const timeOffset =
+      (currentVideoStore.fragments[0].transitPostImages!.length * 100) / 2;
 
     this.playGptAddAnimation();
-    const a = () => {
-      const now = Date.now();
+    const a = async () => {
+      const now = Date.now() + timeOffset;
       const currentTime = now - start;
       if (!this.isPlaying) {
         return;
@@ -203,9 +275,15 @@ export class ScientistAnswerAnimation extends FilmAnimation {
 
       if (needToChangeState) {
         lastRenderedImageIndex = currentImageIndex;
-        const fragment = currentVideoStore.fragments[currentImageIndex];
-        if (fragment) {
-          this.switchOnFragment(fragment);
+        const prevFragment = currentVideoStore.fragments[currentImageIndex - 1];
+        if (prevFragment) {
+          await this.switchOffFragment(prevFragment);
+        }
+        const fragment =
+          currentVideoStore.fragments[currentImageIndex] ||
+          currentVideoStore.fragments[0];
+        if (fragment && currentImageIndex !== 0) {
+          await this.switchOnFragment(fragment);
         }
         // console.log(
         //   currentVideoStore.audioDurationMs,
