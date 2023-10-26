@@ -12,13 +12,24 @@ import { getGptShorterText } from "@/src/utils/api/get-gpt-shorter-text";
 import { getGptYoutubeVideoDescription } from "@/src/utils/api/get-gpt-youtube-video-description";
 import { getGptYoutubeVideoKeywords } from "@/src/utils/api/get-gpt-youtube-video-keywords";
 import { Fragment } from "@/src/stores/fragment.interface";
-import { getImageSrcByName } from "@/src/utils/get-image-src-by-name";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 import { getKandinskyMobileImageTransformation } from "@/src/utils/api/get-kandinsky-mobile-image-transformation";
 import { FragmentTransition } from "@/src/stores/fragment-transition.interface";
 import { getKandinskyMobileMixedImages } from "@/src/utils/api/get-kandinsky-mobile-mixed-images";
+import { VideoMode } from "@/src/stores/video-mode.enum";
+import { FilmAnimation } from "@/src/film/animations/film-animation";
+import { ScientistAnswerAlphaAnimation } from "@/src/film/animations/scientist-answer-alpha.animation";
+import { ScientistAnswerEvolutionAnimation } from "@/src/film/animations/scientist-answer-evolution.animation";
 
 export class CurrentVideoStore {
+  public videoMode: VideoMode = VideoMode.scientistAlpha;
+  public get filmAnimationClass(): typeof FilmAnimation {
+    if (this.videoMode === VideoMode.scientistAlpha) {
+      return ScientistAnswerAlphaAnimation;
+    } else {
+      return ScientistAnswerEvolutionAnimation;
+    }
+  }
   public prompt: string = "";
   public scientistAnswer: string = "";
   public scientistAnswerDescription: string = "";
@@ -30,6 +41,10 @@ export class CurrentVideoStore {
   public videFilePath: string = "";
   public youtubeDescription: string = "";
   public youtubeKeywords: string = "";
+
+  get allFragmentsHasPrompts(): boolean {
+    return this.fragments.every((f) => !!f.prompt);
+  }
 
   get videRecorderImages(): VideRecorderImage[] {
     return this.fragments
@@ -77,6 +92,7 @@ export class CurrentVideoStore {
       "youtubeKeywords",
       "youtubeDescription",
       "fragmentTransitions",
+      "videoMode",
     ]);
   }
 
@@ -96,6 +112,10 @@ export class CurrentVideoStore {
 
   setPrompt(prompt: string): void {
     this.prompt = prompt;
+  }
+
+  setVideMode(videMode: VideoMode): void {
+    this.videoMode = videMode;
   }
 
   setFragments(fragments: Fragment[]): void {
@@ -201,29 +221,47 @@ export class CurrentVideoStore {
     if (!fragment.image) {
       return alert(`no image for fragment ${fragment.fragment}`);
     }
-    {
+    if (this.videoMode === VideoMode.scientistEvolution) {
       const nextFrame = this.getNextFragment(fragment);
       console.log(
         `Getting image from prompt${fragment.prompt} to ${nextFrame.prompt} ...`
       );
       const postImages = await getKandinskyMobileImageTransformation(
         fragment.image.fileName,
-        nextFrame.prompt + ", высокое качетство, 4k"
+        nextFrame.prompt + ", высокое качетство, 4k",
+        11
       );
+
+      if (this.fragments.indexOf(nextFrame) !== 0 && postImages.length) {
+        this.setFragmentImage(nextFrame, postImages.pop()!);
+      }
+
       this.setFragmentTransformPostImages(fragment, postImages);
       console.log(`Got ${postImages.length} images`);
     }
-    {
-      const preFrame = this.getPreviousFragment(fragment);
-      console.log(
-        `Getting image from prompt${fragment.prompt} to ${preFrame.prompt} ...`
-      );
-      const preImages = await getKandinskyMobileImageTransformation(
-        fragment.image.fileName,
-        preFrame.prompt + ", высокое качетство, 4k"
-      );
-      this.setFragmentTransformPreImages(fragment, preImages.reverse());
-      console.log(`Got ${preImages.length} images`);
+    if (this.videoMode === VideoMode.scientistAlpha) {
+      {
+        const nextFrame = this.getNextFragment(fragment);
+        console.log(
+          `Getting image from prompt${fragment.prompt} to ${nextFrame.prompt} ...`
+        );
+        const postImages = await getKandinskyMobileImageTransformation(
+          fragment.image.fileName,
+          nextFrame.prompt + ", высокое качетство, 4k"
+        );
+      }
+      {
+        const preFrame = this.getPreviousFragment(fragment);
+        console.log(
+          `Getting image from prompt${fragment.prompt} to ${preFrame.prompt} ...`
+        );
+        const preImages = await getKandinskyMobileImageTransformation(
+          fragment.image.fileName,
+          preFrame.prompt + ", высокое качетство, 4k"
+        );
+        this.setFragmentTransformPreImages(fragment, preImages.reverse());
+        console.log(`Got ${preImages.length} images`);
+      }
     }
   }
 

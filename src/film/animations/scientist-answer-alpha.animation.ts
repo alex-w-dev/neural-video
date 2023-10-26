@@ -8,7 +8,7 @@ import { currentVideoStore } from "@/src/stores/current-video.store";
 import { Fragment } from "@/src/stores/fragment.interface";
 import { getHtmlImgPromise } from "@/src/utils/get-html-img";
 
-export class ScientistAnswerAnimation extends FilmAnimation {
+export class ScientistAnswerAlphaAnimation extends FilmAnimation {
   isPlaying = false;
 
   imgSrcToSprite = new Map<string, Sprite>();

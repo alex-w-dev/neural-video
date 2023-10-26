@@ -8,10 +8,10 @@ import FPSStats from "react-fps-stats";
 import { uploadImagesToServer } from "@/src/utils/upload-images-to-server";
 import { dataURItoFile } from "@/src/utils/data-u-r-ito-file";
 import { Film } from "@/src/film/film.class";
-import { ScientistAnswerAnimation } from "@/src/film/animations/scientist-answer.animation";
 import { VideRecorderOnReadyData } from "@/src/interfaces/common";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 import { getHtmlImg } from "@/src/utils/get-html-img";
+import { FilmAnimation } from "@/src/film/animations/film-animation";
 
 export type VideRecorderImage = {
   image: KandinskyImage;
@@ -26,12 +26,14 @@ export type VideRecorderProps = {
   images: VideRecorderImage[];
   audioFilePath: string;
   onVideReady: (data: VideRecorderOnReadyData) => void;
+  filmAnimationClass: typeof FilmAnimation;
 };
 
 export function VideoRecorder({
   images,
   audioFilePath,
   onVideReady,
+  filmAnimationClass,
 }: VideRecorderProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoPath, setVideoPath] = useState("");
@@ -85,7 +87,7 @@ export function VideoRecorder({
     setTimeout(() => {
       try {
         film?.play({
-          filmAnimationClass: ScientistAnswerAnimation,
+          filmAnimationClass,
           onStart: () => {
             audio.play();
           },
@@ -100,7 +102,7 @@ export function VideoRecorder({
         setIsPlaying(false);
       }
     }, 500);
-  }, [film, isPlaying, images, audioFilePath]);
+  }, [filmAnimationClass, film, isPlaying, images, audioFilePath]);
 
   const onMount = useCallback((app: Application) => {
     setFilm(new Film(app));

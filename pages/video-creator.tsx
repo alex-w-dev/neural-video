@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { observer } from "mobx-react-lite";
 import {
@@ -12,6 +12,7 @@ import { uploadVideo } from "@/src/utils/api/upload-video";
 import { getYoutubeOauth } from "@/src/utils/api/get-youtube-oauth";
 import { getYoutubeOauthLink } from "@/src/utils/api/get-youtube-oauth-link";
 import { commentVideo } from "@/src/utils/api/comment-video";
+import { VideoMode } from "@/src/stores/video-mode.enum";
 
 type Fragment = CurrentVideoStore["fragments"][0];
 
@@ -188,11 +189,32 @@ export default observer(function VideoCreator() {
     onRenewFramesData,
   ]);
 
+  const videoModes = useMemo(() => {
+    return Object.keys(VideoMode).map((videoMode) => ({
+      text: videoMode,
+      value: videoMode,
+    }));
+  }, []);
+
   return (
     <JustInClient>
       <Main>
         <h1>Video Creator</h1>
         <button onClick={onClearAllData}>Clear ALL DATA</button>
+        <select
+          name=""
+          id=""
+          value={currentVideoStore.videoMode}
+          onChange={(e) =>
+            currentVideoStore.setVideMode(e.target.value as VideoMode)
+          }
+        >
+          {videoModes.map((videoMode) => (
+            <option value={videoMode.value} key={videoMode.value}>
+              {videoMode.text}
+            </option>
+          ))}
+        </select>
         <Form>
           <textarea
             disabled={makingVideo}
@@ -275,16 +297,26 @@ export default observer(function VideoCreator() {
         <FramesContainer>
           {currentVideoStore.fragments.length ? (
             <>
-              <button disabled={makingVideo} onClick={onRenewFramesData}>
-                Renew all frames Data
-              </button>
-              <button disabled={makingVideo} onClick={onRenewFramesPreFrames}>
+              {currentVideoStore.videoMode === VideoMode.scientistAlpha ? (
+                <>
+                  <button disabled={makingVideo} onClick={onRenewFramesData}>
+                    Renew all frames Data
+                  </button>
+                </>
+              ) : null}
+              <button
+                disabled={
+                  makingVideo || !currentVideoStore.allFragmentsHasPrompts
+                }
+                onClick={onRenewFramesPreFrames}
+              >
                 Renew all frames preFrames
               </button>
+
               {/*              <button disabled={makingVideo} onClick={onGenerateTransitions}>
                 Renew all frames middle TRANSITIONS
               </button>*/}
-              {currentVideoStore.fragments.map((fragment) => {
+              {currentVideoStore.fragments.map((fragment, index) => {
                 const fragmentIsLoading = fragment === loadingFragment;
                 const nexFragment = currentVideoStore.getNextFragment(fragment);
 
@@ -315,15 +347,28 @@ export default observer(function VideoCreator() {
                           value={fragment.prompt}
                         />
                       ) || "No Prompt"}{" "}
+                      {currentVideoStore.videoMode ===
+                        VideoMode.scientistAlpha ||
+                      (currentVideoStore.videoMode ===
+                        VideoMode.scientistEvolution &&
+                        index === 0) ? (
+                        <button
+                          disabled={fragmentIsLoading}
+                          onClick={() => onRegenerateImage(fragment)}
+                        >
+                          New Image
+                        </button>
+                      ) : null}
                       <button
                         disabled={fragmentIsLoading}
-                        onClick={() => onRegenerateImage(fragment)}
-                      >
-                        New Image
-                      </button>
-                      <button
-                        disabled={fragmentIsLoading}
-                        onClick={() => onRegenerateImageTransition(fragment)}
+                        onClick={() =>
+                          currentVideoStore.videoMode ===
+                          VideoMode.scientistEvolution
+                            ? onRegenerateImageTransition(
+                                currentVideoStore.getPreviousFragment(fragment)
+                              )
+                            : onRegenerateImageTransition(fragment)
+                        }
                       >
                         Regenerate image Transition
                       </button>
@@ -391,6 +436,7 @@ export default observer(function VideoCreator() {
             <VideoRecorder
               audioFilePath={currentVideoStore.audioFilePath}
               images={currentVideoStore.videRecorderImages}
+              filmAnimationClass={currentVideoStore.filmAnimationClass}
               onVideReady={onVideoReady}
             />
           </div>
