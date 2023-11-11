@@ -20,8 +20,10 @@ import { VideoMode } from "@/src/stores/video-mode.enum";
 import { FilmAnimation } from "@/src/film/animations/film-animation";
 import { ScientistAnswerAlphaAnimation } from "@/src/film/animations/scientist-answer-alpha.animation";
 import { ScientistAnswerEvolutionAnimation } from "@/src/film/animations/scientist-answer-evolution.animation";
+import { ChannelEnum } from "@/src/stores/channel.enum";
 
 export class CurrentVideoStore {
+  public channel: ChannelEnum = ChannelEnum.neuralAcked;
   public videoMode: VideoMode = VideoMode.scientistAlpha;
   public get filmAnimationClass(): typeof FilmAnimation {
     if (this.videoMode === VideoMode.scientistAlpha) {
@@ -67,7 +69,9 @@ export class CurrentVideoStore {
   }
 
   get youtubeTitle(): string {
-    return `Нейросеть спросили: ${this.prompt}?`;
+    return this.channel === ChannelEnum.jesusIsPath
+      ? this.prompt
+      : `Нейросеть спросили: ${this.prompt}?`;
   }
 
   get youtubeTags(): string[] {
@@ -92,6 +96,7 @@ export class CurrentVideoStore {
       "youtubeKeywords",
       "youtubeDescription",
       "fragmentTransitions",
+      "channel",
       "videoMode",
     ]);
   }
@@ -116,6 +121,10 @@ export class CurrentVideoStore {
 
   setVideMode(videMode: VideoMode): void {
     this.videoMode = videMode;
+  }
+
+  setChanel(channel: ChannelEnum): void {
+    this.channel = channel;
   }
 
   setFragments(fragments: Fragment[]): void {
@@ -164,7 +173,10 @@ export class CurrentVideoStore {
       this.prompt,
       this.scientistAnswer
     );
-    this.youtubeDescription = `${gptDescription}\nВы также можете задавать свои вопросы в комментариях! - там подключена нейросеть!!!`;
+    this.youtubeDescription =
+      this.channel === ChannelEnum.jesusIsPath
+        ? gptDescription
+        : `${gptDescription}\nВы также можете задавать свои вопросы в комментариях! - там подключена нейросеть!!!`;
     console.log("Got " + this.youtubeDescription);
 
     console.log("Getting youtube keywords...");

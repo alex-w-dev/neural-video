@@ -9,10 +9,10 @@ import { JustInClient } from "@/src/components/just-in-client";
 import { VideoRecorder } from "@/src/components/video-recorder";
 import { VideRecorderOnReadyData } from "@/src/interfaces/common";
 import { uploadVideo } from "@/src/utils/api/upload-video";
-import { getYoutubeOauth } from "@/src/utils/api/get-youtube-oauth";
 import { getYoutubeOauthLink } from "@/src/utils/api/get-youtube-oauth-link";
 import { commentVideo } from "@/src/utils/api/comment-video";
 import { VideoMode } from "@/src/stores/video-mode.enum";
+import { ChannelEnum } from "@/src/stores/channel.enum";
 
 type Fragment = CurrentVideoStore["fragments"][0];
 
@@ -145,15 +145,11 @@ export default observer(function VideoCreator() {
   const onCheckAuth = useCallback(async (e: any) => {
     e.stopPropagation();
     e.preventDefault();
-    try {
-      await getYoutubeOauth();
-      alert("Login Success");
-    } catch (e) {
-      const a = document.createElement("a");
-      a.target = "_blank";
-      a.href = getYoutubeOauthLink();
-      a.click();
-    }
+
+    const a = document.createElement("a");
+    a.target = "_blank";
+    a.href = getYoutubeOauthLink();
+    a.click();
   }, []);
 
   const onClearAllData = useCallback(() => {
@@ -196,25 +192,53 @@ export default observer(function VideoCreator() {
     }));
   }, []);
 
+  const chanels = useMemo(() => {
+    return Object.keys(ChannelEnum).map((chanel) => ({
+      text: chanel,
+      value: chanel,
+    }));
+  }, []);
+
   return (
     <JustInClient>
       <Main>
         <h1>Video Creator</h1>
         <button onClick={onClearAllData}>Clear ALL DATA</button>
-        <select
-          name=""
-          id=""
-          value={currentVideoStore.videoMode}
-          onChange={(e) =>
-            currentVideoStore.setVideMode(e.target.value as VideoMode)
-          }
-        >
-          {videoModes.map((videoMode) => (
-            <option value={videoMode.value} key={videoMode.value}>
-              {videoMode.text}
-            </option>
-          ))}
-        </select>
+        <div>
+          <span>Канал:</span>
+          <select
+            name=""
+            id=""
+            value={currentVideoStore.channel}
+            onChange={(e) =>
+              currentVideoStore.setChanel(e.target.value as ChannelEnum)
+            }
+          >
+            {chanels.map((channel) => (
+              <option value={channel.value} key={channel.value}>
+                {channel.text}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <span>Мод:</span>
+          <select
+            name=""
+            id=""
+            value={currentVideoStore.videoMode}
+            onChange={(e) =>
+              currentVideoStore.setVideMode(e.target.value as VideoMode)
+            }
+          >
+            {videoModes.map((videoMode) => (
+              <option value={videoMode.value} key={videoMode.value}>
+                {videoMode.text}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <Form>
           <textarea
             disabled={makingVideo}
@@ -264,7 +288,8 @@ export default observer(function VideoCreator() {
           )}
         </div>
         <div>
-          {currentVideoStore.scientistAnswerDescription ? (
+          {currentVideoStore.scientistAnswerDescription ||
+          currentVideoStore.channel === ChannelEnum.jesusIsPath ? (
             <>
               (length: {currentVideoStore.scientistAnswerDescription.length}){" "}
               {currentVideoStore.scientistAnswerDescription}

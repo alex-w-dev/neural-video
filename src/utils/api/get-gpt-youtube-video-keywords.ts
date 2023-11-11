@@ -1,6 +1,6 @@
 export async function getGptYoutubeVideoKeywords(
-  question: string,
-  answer: string
+  videTitle: string,
+  videDescription: string
 ): Promise<string> {
   const result = await window.fetch(
     new Request("/api/chat-gpt-3/get-answer", {
@@ -9,12 +9,11 @@ export async function getGptYoutubeVideoKeywords(
         "Content-Type": "application/json;charset=utf-8",
       },
       body: JSON.stringify({
-        message: `Вы выступаете в роли SEO (англ. Search Engine Optimization) специалиста. Выша задача придумать более 10 ключевых слов для Youtube видео в котором нейросеть отвечает на вопрос "${question}".
-Вот содержание видео "${answer.replaceAll(
+        message: `Вы выступаете в роли SEO (англ. Search Engine Optimization) специалиста. Выша задача придумать более 10 ключевых слов для Youtube видео с названием "${videTitle}".
+Вот содержание видео "${videDescription.replaceAll(
           '"',
           "'"
         )}", которое сгенерировала неросеть.
-Ответ должен начинаться со слов "Нейросеть спросили".
 Ответ должен быть без повторанеия вопроса - только ответ.
 В ответе ключевые слова должны быть через запятую (например "ключевое слово,слово,видео")`,
       }),
