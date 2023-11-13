@@ -263,7 +263,8 @@ export default observer(function VideoCreator() {
           </div>
         </Form>
         <div>
-          {currentVideoStore.scientistAnswer ? (
+          {currentVideoStore.scientistAnswer ||
+          currentVideoStore.channel === ChannelEnum.jesusIsPath ? (
             <>
               (length: {currentVideoStore.scientistAnswer.length})(time:{" "}
               {Math.round(currentVideoStore.scientistAnswer.length / 15.5)}sec){" "}
@@ -407,8 +408,12 @@ export default observer(function VideoCreator() {
                       ) : null}
                       <TransitionImagesContainer>
                         {fragment.transitPostImages ? (
-                          fragment.transitPostImages.map((image) => (
-                            <img key={image.src} src={image.src} alt="" />
+                          fragment.transitPostImages.map((image, index) => (
+                            <img
+                              key={image.src + index}
+                              src={image.src}
+                              alt=""
+                            />
                           ))
                         ) : (
                           <strong>No Post Images</strong>
@@ -423,8 +428,12 @@ export default observer(function VideoCreator() {
                         )}*/}
 
                         {nexFragment.transitPreImages ? (
-                          nexFragment.transitPreImages.map((image) => (
-                            <img key={image.src} src={image.src} alt="" />
+                          nexFragment.transitPreImages.map((image, index) => (
+                            <img
+                              key={image.src + index}
+                              src={image.src}
+                              alt=""
+                            />
                           ))
                         ) : (
                           <strong>No Pre images</strong>

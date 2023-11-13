@@ -36,7 +36,7 @@ export class Film {
     this.imagesSpriteContainer.addChild(
       ...this.images.map((img, index) => {
         const sprite = this.getSpriteFromImg(img.image);
-        sprite.renderable = index === 0;
+        sprite.renderable = false;
 
         return sprite;
       })

@@ -1,12 +1,12 @@
 import { FilmAnimation } from "./film-animation";
 import { Film } from "@/src/film/film.class";
 import { Sprite, Text, TextStyle } from "pixi.js";
-import { tween } from "@/src/utils/tween";
 // @ts-ignore
 import * as TWEEN from "@tweenjs/tween.js/dist/tween.esm.js";
 import { currentVideoStore } from "@/src/stores/current-video.store";
 import { Fragment } from "@/src/stores/fragment.interface";
 import { getHtmlImgPromise } from "@/src/utils/get-html-img";
+import { ChannelEnum } from "@/src/stores/channel.enum";
 
 export class ScientistAnswerAlphaAnimation extends FilmAnimation {
   isPlaying = false;
@@ -24,6 +24,9 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
   }
 
   async switchOnFragment(fragment: Fragment): Promise<void> {
+    // this.imgSrcToSprite.get(fragment.image!.src)!.renderable = true;
+    // return;
+
     const previousFragment = currentVideoStore.getPreviousFragment(fragment);
     const previousFrameLast1 = this.imgSrcToSprite.get(
       previousFragment.transitPostImages![
@@ -68,6 +71,12 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
           console.log(2, "2");
           previousFrameLast2!.renderable = false;
           myTransit4!.renderable = false;
+
+          if (!otherSprites.length) {
+            this.imgSrcToSprite.get(fragment.image!.src)!.renderable = true;
+            this.imgSrcToSprite.get(fragment.image!.src)!.alpha = 1;
+          }
+
         default:
           console.log(`defulat`, "`defulat`");
           if (currenSprite) {
@@ -84,12 +93,13 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
 
     return new Promise((resolve, reject) => {
       const interval = setInterval(() => {
-        if (!otherSprites.length) {
+        if (!otherSprites.length && step > 2) {
           if (currenSprite) {
             currenSprite.renderable = false;
           }
 
           this.imgSrcToSprite.get(fragment.image!.src)!.renderable = true;
+          this.imgSrcToSprite.get(fragment.image!.src)!.alpha = 1;
           clearInterval(interval);
           resolve();
         } else {
@@ -252,9 +262,17 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
     const start = Date.now();
     let lastRenderedImageIndex = -1;
     const timeOffset =
-      (currentVideoStore.fragments[0].transitPostImages!.length * 100) / 2;
+      ((currentVideoStore.fragments[0].transitPostImages?.length || 0) * 100) /
+      2;
 
-    this.playGptAddAnimation();
+    this.imgSrcToSprite.get(
+      currentVideoStore.fragments[0].image!.src
+    )!.renderable = true;
+
+    if (currentVideoStore.channel === ChannelEnum.neuralAcked) {
+      this.playGptAddAnimation();
+    }
+
     const a = async () => {
       const now = Date.now() + timeOffset;
       const currentTime = now - start;

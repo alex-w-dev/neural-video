@@ -141,6 +141,10 @@ export class CurrentVideoStore {
   }
   setFragmentImage(fragment: Fragment, image: KandinskyImage): void {
     fragment.image = image;
+
+    fragment.transitPreImages = [image, image, image, image];
+    fragment.transitPostImages = [image, image, image, image];
+
     this.setFragments([...this.fragments]);
   }
   setFragmentTransformPreImages(
