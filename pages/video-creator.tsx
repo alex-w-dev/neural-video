@@ -10,9 +10,9 @@ import { VideoRecorder } from "@/src/components/video-recorder";
 import { VideRecorderOnReadyData } from "@/src/interfaces/common";
 import { uploadVideo } from "@/src/utils/api/upload-video";
 import { getYoutubeOauthLink } from "@/src/utils/api/get-youtube-oauth-link";
-import { commentVideo } from "@/src/utils/api/comment-video";
 import { VideoMode } from "@/src/stores/video-mode.enum";
 import { ChannelEnum } from "@/src/stores/channel.enum";
+import { commentVideo } from "@/src/utils/api/comment-video";
 
 type Fragment = CurrentVideoStore["fragments"][0];
 
@@ -133,12 +133,15 @@ export default observer(function VideoCreator() {
       videoFilePath: currentVideoStore.videFilePath,
       description: currentVideoStore.youtubeDescription,
     });
-    console.log("Commenting video " + returns.data.id + " ...");
-    await commentVideo({
-      videoId: returns.data.id,
-      text: `Дорогие друзья, это видео сделано несколькими нейросетями: Chat GPT 3.5, Kandinsky 2.2 и SaluteSpeech.
+
+    if (currentVideoStore.channel === ChannelEnum.neuralAcked) {
+      console.log("Commenting video " + returns.data.id + " ...");
+      await commentVideo({
+        videoId: returns.data.id,
+        text: `Дорогие друзья, это видео сделано несколькими нейросетями: Chat GPT 3.5, Kandinsky 2.2 и SaluteSpeech.
 А ChatGPT еще и периодически подключается к комментариям, тем самым давая возможность пообщаться с ней!`,
-    });
+      });
+    }
     setMakingVideo(false);
   }, []);
 
