@@ -13,6 +13,10 @@ import { getYoutubeOauthLink } from "@/src/utils/api/get-youtube-oauth-link";
 import { VideoMode } from "@/src/stores/video-mode.enum";
 import { ChannelEnum } from "@/src/stores/channel.enum";
 import { commentVideo } from "@/src/utils/api/comment-video";
+import { TopNav } from "@/src/components/top-nav";
+import { getImageSrcByName } from "@/src/utils/get-image-src-by-name";
+import { getFileSrcByPath } from "@/src/utils/get-file-src-by-path";
+import { getFileNameFromPath } from "@/src/utils/get-file-name-from-path";
 
 type Fragment = CurrentVideoStore["fragments"][0];
 
@@ -204,6 +208,7 @@ export default observer(function VideoCreator() {
 
   return (
     <JustInClient>
+      <TopNav />
       <Main>
         <h1>Video Creator</h1>
         <button onClick={onClearAllData}>Clear ALL DATA</button>
@@ -403,7 +408,17 @@ export default observer(function VideoCreator() {
                       </button>
                     </div>
                     <hr />
-
+                    <input
+                      type="text"
+                      value={fragment.image?.filePath}
+                      onChange={(e) => {
+                        currentVideoStore.setFragmentImage(fragment, {
+                          src: getFileSrcByPath(e.target.value),
+                          filePath: e.target.value,
+                          fileName: getFileNameFromPath(e.target.value),
+                        });
+                      }}
+                    />
                     <hr />
                     <SomeContainer>
                       {fragment.image ? (

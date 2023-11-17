@@ -12,6 +12,7 @@ import { VideRecorderOnReadyData } from "@/src/interfaces/common";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 import { getHtmlImg } from "@/src/utils/get-html-img";
 import { FilmAnimation } from "@/src/film/animations/film-animation";
+import { getFileSrcByPath } from "@/src/utils/get-file-src-by-path";
 
 export type VideRecorderImage = {
   image: KandinskyImage;
@@ -79,9 +80,7 @@ export function VideoRecorder({
         };
       })
     );
-    var audio = new Audio(
-      `http://localhost:3000/api/get-file?path=${audioFilePath}`
-    );
+    var audio = new Audio(getFileSrcByPath(audioFilePath));
 
     // just wait for pixi initialize images and render
     setTimeout(() => {
@@ -124,9 +123,9 @@ export function VideoRecorder({
       .then((d) => {
         onVideReady({
           videoFilePath: d.data,
-          videoSrc: "http://localhost:3000/api/get-file?path=" + d.data,
+          videoSrc: getFileSrcByPath(d.data),
         });
-        setVideoPath("http://localhost:3000/api/get-file?path=" + d.data);
+        setVideoPath(getFileSrcByPath(d.data));
       });
   }, [onVideReady, audioFilePath, filmImages]);
 

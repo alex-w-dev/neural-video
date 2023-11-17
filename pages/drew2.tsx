@@ -12,6 +12,7 @@ import { TrrrrAnimation } from "@/src/film/animations/trrrr.animation";
 import { GAME_STOP_ANIMATION_MP3 } from "@/src/constants/paths";
 import { StopGameAnimation } from "@/src/film/animations/stop-game.animation";
 import styled from "styled-components";
+import { getFileSrcByPath } from "@/src/utils/get-file-src-by-path";
 
 type Image = {
   src: string;
@@ -73,9 +74,7 @@ export default function Drew() {
         };
       })
     );
-    var audio = new Audio(
-      `http://localhost:3000/api/get-file?path=${GAME_STOP_ANIMATION_MP3}`
-    );
+    var audio = new Audio(getFileSrcByPath(GAME_STOP_ANIMATION_MP3));
 
     // just wait for pixi initialize images and render
     setTimeout(() => {
@@ -124,9 +123,7 @@ export default function Drew() {
       },
     })
       .then((d) => d.json())
-      .then((d) =>
-        setVideoPath("http://localhost:3000/api/get-file?path=" + d.data)
-      );
+      .then((d) => setVideoPath(getFileSrcByPath(d.data)));
   }, [filmImages]);
 
   const onImageTitleChange = useCallback(

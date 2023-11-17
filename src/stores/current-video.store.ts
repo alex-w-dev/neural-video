@@ -21,6 +21,7 @@ import { FilmAnimation } from "@/src/film/animations/film-animation";
 import { ScientistAnswerAlphaAnimation } from "@/src/film/animations/scientist-answer-alpha.animation";
 import { ScientistAnswerEvolutionAnimation } from "@/src/film/animations/scientist-answer-evolution.animation";
 import { ChannelEnum } from "@/src/stores/channel.enum";
+import { getFileSrcByPath } from "@/src/utils/get-file-src-by-path";
 
 export class CurrentVideoStore {
   public channel: ChannelEnum = ChannelEnum.neuralAcked;
@@ -61,11 +62,7 @@ export class CurrentVideoStore {
   }
 
   get videoSrc(): string {
-    return (
-      (this.videFilePath &&
-        "http://localhost:3000/api/get-file?path=" + this.videFilePath) ||
-      ""
-    );
+    return (this.videFilePath && getFileSrcByPath(this.videFilePath)) || "";
   }
 
   get youtubeTitle(): string {
@@ -286,8 +283,7 @@ export class CurrentVideoStore {
       `Getting audio for scientist answer: ${this.scientistAnswer} ...`
     );
     this.audioFilePath = await getSpeechSynthesis(this.scientistAnswer);
-    this.audioSrc =
-      "http://localhost:3000/api/get-file?path=" + this.audioFilePath;
+    this.audioSrc = getFileSrcByPath(this.audioFilePath);
 
     console.log(`Audio duration is ...`);
     this.audioDurationMs = (await getAudioDuration(this.audioSrc)) * 1000;

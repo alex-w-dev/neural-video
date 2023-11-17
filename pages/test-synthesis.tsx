@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { getGptScientistAnswer } from "@/src/utils/api/get-gpt-scientist-answer";
 import { getSpeechSynthesis } from "@/src/utils/api/get-speech-synthesis";
+import { getFileSrcByPath } from "@/src/utils/get-file-src-by-path";
 
 export default function TestSynthesis() {
   const [prompt, setPrompt] = useState(
@@ -16,9 +17,7 @@ export default function TestSynthesis() {
     }
     setMakingRequest(true);
 
-    const src =
-      "http://localhost:3000/api/get-file?path=" +
-      (await getSpeechSynthesis(prompt));
+    const src = getFileSrcByPath(await getSpeechSynthesis(prompt));
     setAudioSrc(src);
 
     setMakingRequest(false);
