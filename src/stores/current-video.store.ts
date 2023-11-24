@@ -282,12 +282,20 @@ export class CurrentVideoStore {
     console.log(
       `Getting audio for scientist answer: ${this.scientistAnswer} ...`
     );
-    this.audioFilePath = await getSpeechSynthesis(this.scientistAnswer);
+    await this.setAudioFilePath(await getSpeechSynthesis(this.scientistAnswer));
+  }
+
+  async setAudioFilePath(audioFilePath: string): Promise<void> {
+    this.audioFilePath = audioFilePath;
     this.audioSrc = getFileSrcByPath(this.audioFilePath);
 
     console.log(`Audio duration is ...`);
     this.audioDurationMs = (await getAudioDuration(this.audioSrc)) * 1000;
     console.log(this.audioDurationMs);
+  }
+
+  removeFragment(fragment: Fragment): void {
+    this.fragments = this.fragments.filter((f) => f !== fragment);
   }
 
   async regenerateFramePrompt(fragment: Fragment): Promise<void> {

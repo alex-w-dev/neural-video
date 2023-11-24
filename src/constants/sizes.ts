@@ -6,3 +6,5 @@ export const MOBILE_IMAGE_HEIGHT = 1024;
 // export const MOBILE_IMAGE_HEIGHT = 512 + 256;
 // // export const MOBILE_IMAGE_WIDTH = 640;
 // // export const MOBILE_IMAGE_HEIGHT = 930;
+
+// '576*1024', '1280*720', '720*1280',

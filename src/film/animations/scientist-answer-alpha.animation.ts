@@ -178,6 +178,26 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
     });
   }
 
+  showIllustrationLabel() {
+    const y = 0.7;
+    const sprite = Sprite.from("/img/illustracii.png");
+    sprite.anchor.x = 0.5;
+    sprite.anchor.y = 0.5;
+    sprite.x = 1080 * 0.5;
+    sprite.y = 1920 * (0.15 + y);
+    sprite.scale.set(1);
+    sprite.renderable = true;
+    this.film.app.stage.addChild(sprite);
+    const sprite2 = Sprite.from("/img/biblii.png");
+    sprite2.anchor.x = 0.5;
+    sprite2.anchor.y = 0.5;
+    sprite2.x = 1080 * 0.5;
+    sprite2.y = 1920 * (0.17 + y);
+    sprite2.scale.set(1.5);
+    sprite2.renderable = true;
+    this.film.app.stage.addChild(sprite2);
+  }
+
   playGptAddAnimation() {
     const y = 0.5;
     const sprite = Sprite.from(
@@ -272,6 +292,10 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
     if (currentVideoStore.channel === ChannelEnum.neuralAcked) {
       this.playGptAddAnimation();
     }
+
+    // if (currentVideoStore.channel === ChannelEnum.jesusIsPath) {
+    //   this.showIllustrationLabel();
+    // }
 
     const a = async () => {
       const now = Date.now() + timeOffset;

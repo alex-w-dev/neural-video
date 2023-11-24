@@ -84,6 +84,10 @@ export default observer(function VideoCreator() {
     setMakingVideo(false);
   }, []);
 
+  const onRemoveFragment = useCallback(async (fragment: Fragment) => {
+    currentVideoStore.removeFragment(fragment);
+  }, []);
+
   const onRegeneratePrompt = useCallback(async (fragment: Fragment) => {
     setLoadingFragment(fragment);
     await currentVideoStore.regenerateFramePrompt(fragment);
@@ -359,15 +363,23 @@ export default observer(function VideoCreator() {
                     key={fragment.fragment}
                     style={{ opacity: fragmentIsLoading ? ".5" : "1" }}
                   >
-                    <div>
-                      ({fragment.fragment.length}){fragment.fragment}{" "}
+                    <FlexSpaceBetween>
+                      <div>
+                        ({fragment.fragment.length}){fragment.fragment}{" "}
+                        <button
+                          disabled={fragmentIsLoading}
+                          onClick={() => onRegeneratePrompt(fragment)}
+                        >
+                          New Prompt
+                        </button>
+                      </div>
                       <button
                         disabled={fragmentIsLoading}
-                        onClick={() => onRegeneratePrompt(fragment)}
+                        onClick={() => onRemoveFragment(fragment)}
                       >
-                        New Prompt
+                        Remove
                       </button>
-                    </div>
+                    </FlexSpaceBetween>
                     <hr />
                     <div>
                       {(
@@ -409,6 +421,7 @@ export default observer(function VideoCreator() {
                     </div>
                     <hr />
                     <input
+                      placeholder="image.filePath"
                       type="text"
                       value={fragment.image?.filePath}
                       onChange={(e) => {
@@ -466,6 +479,16 @@ export default observer(function VideoCreator() {
             "No Frames"
           )}
         </FramesContainer>
+        <div>
+          <input
+            placeholder="audioFilePath"
+            type="text"
+            value={currentVideoStore.audioFilePath}
+            onChange={(e) => {
+              currentVideoStore.setAudioFilePath(e.target.value);
+            }}
+          />
+        </div>
         <div>
           {currentVideoStore.audioSrc ? (
             <>
@@ -575,6 +598,12 @@ const FramesContainer = styled.div`
   img {
     max-width: 400px;
   }
+`;
+
+const FlexSpaceBetween = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const Main = styled.div`
