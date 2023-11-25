@@ -50,7 +50,7 @@ export default function TestGpt() {
           Answer
         </button>
       </Form>
-      <div>{answer ? answer : "No Answer"}</div>
+      <PreLine>{answer ? answer : "No Answer"}</PreLine>
     </Main>
   );
 }
@@ -65,6 +65,12 @@ const Form = styled.div`
     width: 350px;
     height: 86px;
   }
+`;
+
+const PreLine = styled.div`
+  white-space: pre-line;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const Main = styled.div`
