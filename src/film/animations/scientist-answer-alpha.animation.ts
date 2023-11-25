@@ -277,6 +277,32 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
     console.log(`paly`, "`paly`");
   }
 
+  makeActiveFrameScalable() {
+    const allImages = Array.from(this.imgSrcToSprite.values());
+    let lastSprite: Sprite;
+    let lastSpriteScaleX: number;
+    const interval = setInterval(() => {
+      if (!this.isPlaying) {
+        clearInterval(interval);
+        return;
+      }
+
+      const activeSprite = allImages.find((sprite) => sprite.renderable);
+
+      if (activeSprite) {
+        if (lastSprite !== activeSprite) {
+          if (lastSprite) {
+            lastSprite.scale.set(lastSpriteScaleX);
+          }
+          lastSprite = activeSprite;
+          lastSpriteScaleX = activeSprite.scale.x;
+        }
+
+        activeSprite.scale.set(activeSprite.scale.x + 0.001);
+      }
+    }, 17);
+  }
+
   play() {
     this.isPlaying = true;
     const start = Date.now();
@@ -296,6 +322,8 @@ export class ScientistAnswerAlphaAnimation extends FilmAnimation {
     // if (currentVideoStore.channel === ChannelEnum.jesusIsPath) {
     //   this.showIllustrationLabel();
     // }
+
+    this.makeActiveFrameScalable();
 
     const a = async () => {
       const now = Date.now() + timeOffset;
