@@ -15,7 +15,8 @@ function bbAsync(req: NextApiRequest): Promise<string> {
     const bb = busboy({ headers: req.headers });
     bb.on("file", (name, file, info) => {
       const fileName =
-        info.filename || uuidv4() + "." + mime.extension(info.mimeType);
+        info.filename ||
+        /*uuidv4()*/ Date.now() + "." + mime.extension(info.mimeType);
       const saveTo = path.join(IMG_FOLDER, fileName);
       file.pipe(fs.createWriteStream(saveTo));
 

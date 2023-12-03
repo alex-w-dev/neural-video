@@ -8,9 +8,6 @@ import { splitTextToSentences } from "@/src/utils/split-text-to-sentences";
 import { getSpeechSynthesis } from "@/src/utils/api/get-speech-synthesis";
 import { getAudioDuration } from "@/src/utils/get-audio-duration";
 import { VideRecorderImage } from "@/src/components/video-recorder";
-import { getGptShorterText } from "@/src/utils/api/get-gpt-shorter-text";
-import { getGptYoutubeVideoDescription } from "@/src/utils/api/get-gpt-youtube-video-description";
-import { getGptYoutubeVideoKeywords } from "@/src/utils/api/get-gpt-youtube-video-keywords";
 import { Fragment } from "@/src/stores/fragment.interface";
 import { KandinskyImage } from "@/src/dto/kandinsky-image.interface";
 import { getKandinskyMobileImageTransformation } from "@/src/utils/api/get-kandinsky-mobile-image-transformation";
@@ -22,6 +19,7 @@ import { ScientistAnswerAlphaAnimation } from "@/src/film/animations/scientist-a
 import { ScientistAnswerEvolutionAnimation } from "@/src/film/animations/scientist-answer-evolution.animation";
 import { ChannelEnum } from "@/src/stores/channel.enum";
 import { getFileSrcByPath } from "@/src/utils/get-file-src-by-path";
+import { getGptAnswer } from "@/src/utils/api/get-gpt-answer";
 
 export class CurrentVideoStore {
   public channel: ChannelEnum = ChannelEnum.neuralAcked;
@@ -73,6 +71,34 @@ export class CurrentVideoStore {
 
   get youtubeTags(): string[] {
     return this.youtubeKeywords.split(",");
+  }
+
+  get scientistDescriptionPrompt(): string {
+    return `Вы выступаете в роли профессионального копирайтера, ваша задача делать длинные тексты короткими без потери смысла. Я хочу чтобы ответы были без повторения вопроса - только ответ.
+Сделайте короче этот текст: "${this.scientistAnswer}"`;
+  }
+
+  get youtubeDescriptionPrompt(): string {
+    return `Вы выступаете в роли SEO (англ. Search Engine Optimization) специалиста. Выша задача придумать хорошее ёмкое описание для Youtube видео с названием "${
+      this.prompt
+    }".
+Вот содержание видео: "${this.scientistAnswer.replaceAll(
+      '"',
+      "'"
+    )}", которое сгенерировала неросеть.
+Ответ должен быть без повторанеия вопроса - только ответ.`;
+  }
+
+  get youtubeKeywordsPrompt(): string {
+    return `Вы выступаете в роли SEO (англ. Search Engine Optimization) специалиста. Выша задача придумать более 10 ключевых слов для Youtube видео с названием "${
+      this.youtubeTitle
+    }".
+Вот содержание видео "${this.youtubeDescription.replaceAll(
+      '"',
+      "'"
+    )}", которое сгенерировала неросеть.
+Ответ должен быть без повторанеия вопроса - только ответ.
+В ответе ключевые слова должны быть через запятую (например "ключевое слово,слово,видео")`;
   }
 
   constructor() {
@@ -168,24 +194,33 @@ export class CurrentVideoStore {
     this.videFilePath = videFilePath;
   }
 
-  async remakeSeo(): Promise<void> {
-    console.log("Getting youtube description...");
-    const gptDescription = await getGptYoutubeVideoDescription(
-      this.prompt,
-      this.scientistAnswer
-    );
+  setYoutubeDescription(gptDescription: string): void {
     this.youtubeDescription =
       this.channel === ChannelEnum.jesusIsPath
         ? gptDescription
         : `${gptDescription}\nВы также можете задавать свои вопросы в комментариях! - там подключена нейросеть!!!`;
+  }
+
+  setScientistAnswerDescription(description: string): void {
+    this.scientistAnswerDescription = description;
+  }
+
+  setYoutubeKeywords(keywords: string): void {
+    this.youtubeKeywords = keywords;
+  }
+
+  async remakeSeo(): Promise<void> {
+    console.log("Getting youtube description...");
+    const gptDescription = await getGptAnswer(this.youtubeDescriptionPrompt);
+    this.setYoutubeDescription(gptDescription);
     console.log("Got " + this.youtubeDescription);
 
     console.log("Getting youtube keywords...");
-    const keywords = await getGptYoutubeVideoKeywords(
-      this.prompt,
-      this.scientistAnswer
+    const keywords = (await getGptAnswer(this.youtubeKeywordsPrompt)).replace(
+      /[:;]/g,
+      ","
     );
-    this.youtubeKeywords = keywords;
+    this.setYoutubeKeywords(keywords);
     console.log("Got " + keywords);
   }
 
@@ -396,9 +431,10 @@ export class CurrentVideoStore {
 
   async regenerateScientistAnswerDescription(): Promise<void> {
     console.log(`Getting AI answer shorter (${this.scientistAnswer})...`);
-    this.scientistAnswerDescription = await getGptShorterText(
-      this.scientistAnswer
+    const scientistAnswerDescription = await getGptAnswer(
+      this.scientistDescriptionPrompt
     );
+    this.setScientistAnswerDescription(scientistAnswerDescription);
     console.log(`Scientist answer is: ${this.scientistAnswerDescription}`);
   }
 }

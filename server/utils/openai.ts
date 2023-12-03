@@ -8,7 +8,7 @@ import {
 
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "https://ai.fakeopen.com/v1",
+  baseURL: "http://127.0.0.1:8181/v1",
 });
 
 console.log("process.env.OPENAI_API_KEY", process.env.OPENAI_API_KEY);

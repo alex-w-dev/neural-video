@@ -12,5 +12,5 @@ export async function getGptAnswer(prompt: string): Promise<string> {
   );
   const data = await result.json();
 
-  return data.message;
+  return data.message.replace(/^"|"$|\.$/g, "");
 }

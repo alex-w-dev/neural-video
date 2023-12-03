@@ -301,11 +301,30 @@ export default observer(function VideoCreator() {
           )}
         </div>
         <div>
+          (youtubeTitle)(length: {currentVideoStore.youtubeTitle.length})
+          {currentVideoStore.youtubeTitle}
+        </div>
+        <hr />
+        <div>
+          <small>{currentVideoStore.scientistDescriptionPrompt}</small>
+        </div>
+        <div>
           {currentVideoStore.scientistAnswerDescription ||
           currentVideoStore.channel === ChannelEnum.jesusIsPath ? (
             <>
-              (length: {currentVideoStore.scientistAnswerDescription.length}){" "}
-              {currentVideoStore.scientistAnswerDescription}
+              (scientistAnswerDescription)(length:{" "}
+              {currentVideoStore.scientistAnswerDescription.length}){" "}
+              {
+                <textarea
+                  onChange={(e) => {
+                    currentVideoStore.setScientistAnswerDescription(
+                      e.target.value
+                    );
+                  }}
+                  value={currentVideoStore.scientistAnswerDescription}
+                  className="h-52"
+                />
+              }
               <button disabled={makingVideo} onClick={onRenewFrames}>
                 Renew frames
               </button>
@@ -314,23 +333,41 @@ export default observer(function VideoCreator() {
             "No Description"
           )}
         </div>
+        <hr />
         <div>
-          (length: {currentVideoStore.youtubeTitle.length})
-          {currentVideoStore.youtubeTitle}
+          <small>{currentVideoStore.youtubeDescriptionPrompt}</small>
         </div>
         <div>
-          {currentVideoStore.youtubeDescription ? (
-            <>(Youtube Description) {currentVideoStore.youtubeDescription}</>
-          ) : (
-            "No youtubeDescription"
-          )}
+          <>
+            (Youtube Description){" "}
+            {
+              <textarea
+                onChange={(e) => {
+                  currentVideoStore.setYoutubeDescription(e.target.value);
+                }}
+                value={currentVideoStore.youtubeDescription}
+                className="h-52"
+              />
+            }
+          </>
+        </div>
+        <hr />
+        <div>
+          <small>{currentVideoStore.youtubeKeywordsPrompt}</small>
         </div>
         <div>
-          {currentVideoStore.youtubeKeywords ? (
-            <>(Youtube Keywords) {currentVideoStore.youtubeKeywords}</>
-          ) : (
-            "No youtubeKeywords"
-          )}
+          <>
+            (Youtube Keywords){" "}
+            {
+              <textarea
+                onChange={(e) => {
+                  currentVideoStore.setYoutubeKeywords(e.target.value);
+                }}
+                value={currentVideoStore.youtubeKeywords}
+                className="h-52"
+              />
+            }
+          </>
         </div>
         <FramesContainer>
           {currentVideoStore.fragments.length ? (

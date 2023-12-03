@@ -1,4 +1,5 @@
 import React, { ChangeEvent, useCallback, useMemo, useState } from "react";
+const short = require("short-uuid");
 import { Stage } from "@pixi/react";
 import { Application } from "pixi.js";
 import { v4 as uuidv4 } from "uuid";
@@ -23,6 +24,9 @@ export type VideRecorderImage = {
 const VIDEO_WIDTH = 1080;
 const VIDEO_HEIGHT = 1920;
 
+console.log(short.generate(), "short.generate()");
+console.log(uuidv4(), "uuidv4()");
+
 export type VideRecorderProps = {
   images: VideRecorderImage[];
   audioFilePath: string;
@@ -38,6 +42,7 @@ export function VideoRecorder({
 }: VideRecorderProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoPath, setVideoPath] = useState("");
+  const [serverRequest, setServerRequest] = useState(false);
   const [film, setFilm] = useState<Film | null>(null);
   const [filmImages, setFilmImages] = useState<
     { path: string; loop: number }[]
@@ -46,11 +51,13 @@ export function VideoRecorder({
     if (!film?.recordedCanvases.length || isPlaying) {
       return alert("Film is not played yet");
     }
+
+    setServerRequest(true);
     console.log("START READING DATA URL ....");
     film?.exportImages().then((imgs) => {
       console.log("START UPLOADING ....");
       uploadImagesToServer(
-        imgs.map((img) => dataURItoFile(img.dataUrl, `${uuidv4()}.png`))
+        imgs.map((img) => dataURItoFile(img.dataUrl, `${short.generate()}.png`))
       ).then((imgPaths) => {
         console.log("COMPLETE LOADING:");
         console.log("imgPaths", imgPaths);
@@ -60,6 +67,8 @@ export function VideoRecorder({
             path: imgPaths[index],
           }))
         );
+
+        setServerRequest(false);
       });
     });
   }, [isPlaying, film]);
@@ -108,6 +117,8 @@ export function VideoRecorder({
   }, []);
 
   const onSendVideoClick = useCallback(() => {
+    setServerRequest(true);
+
     fetch("/api/generate-video", {
       method: "POST",
       body: JSON.stringify({
@@ -126,6 +137,9 @@ export function VideoRecorder({
           videoSrc: getFileSrcByPath(d.data),
         });
         setVideoPath(getFileSrcByPath(d.data));
+      })
+      .finally(() => {
+        setServerRequest(false);
       });
   }, [onVideReady, audioFilePath, filmImages]);
 
@@ -133,16 +147,18 @@ export function VideoRecorder({
     <div>
       <div>
         <FPSStats left={"auto"} right={"0"} />
-        <button onClick={onPlayClick}>
+        <button onClick={onPlayClick} disabled={serverRequest}>
           Step 1: Generate Video Images
         </button>{" "}
         ------
         {film?.recordedCanvases.length ? (
-          <button onClick={onExportImagesClick}>Step 2: export images</button>
+          <button onClick={onExportImagesClick} disabled={serverRequest}>
+            Step 2: export images
+          </button>
         ) : null}
         ------
         {filmImages.length ? (
-          <button onClick={onSendVideoClick}>
+          <button onClick={onSendVideoClick} disabled={serverRequest}>
             Step 3: Send Video inServer
           </button>
         ) : null}

@@ -101,7 +101,7 @@ export class Film {
     const a = () => {
       const now = Date.now();
 
-      if (now - lastRead < 40) {
+      if (now - lastRead < 30) {
         return requestAnimationFrame(a);
       }
 
@@ -141,6 +141,11 @@ export class Film {
       requestAnimationFrame(() => {
         const exportData: { dataUrl: string; duration: number }[] = [];
 
+        const summ1 = this.recordedCanvases.reduce(
+          (zcc, x) => zcc + x.duration,
+          0
+        );
+        console.log(summ1, "summ");
         this.recordedCanvases.forEach((c) => {
           const dataUrl = c.canvas.toDataURL("image/png");
 
@@ -157,6 +162,9 @@ export class Film {
             console.log("added image data");
           }
         });
+
+        const summ = exportData.reduce((zcc, x) => zcc + x.duration, 0);
+        console.log(summ, "summ");
 
         res(exportData);
       });
