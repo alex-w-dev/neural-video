@@ -8,7 +8,7 @@ import {
 
 export const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: "http://127.0.0.1:8181/v1",
+  baseURL: process.env.OPENAI_API_URL,
 });
 
 console.log("process.env.OPENAI_API_KEY", process.env.OPENAI_API_KEY);
@@ -35,7 +35,11 @@ export async function runCompletion(
     }
   };
 
+  console.log(rCompletion, "rCompletion");
+
   const completion = await rCompletion();
+
+  console.log(completion, "completion");
 
   const answer = completion.choices[0].message.content;
 
