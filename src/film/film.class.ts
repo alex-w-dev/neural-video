@@ -101,7 +101,7 @@ export class Film {
     const a = () => {
       const now = Date.now();
 
-      if (now - lastRead < 30) {
+      if (now - lastRead < 40) {
         return requestAnimationFrame(a);
       }
 

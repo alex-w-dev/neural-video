@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { saveImagesAsVideo } from "@/src/utils/save-images-as-video";
+import { saveImagesAsVideo2 } from "@/src/utils/save-images-as-video-2";
 
 type ResponseData = {
   data: string;
@@ -14,7 +14,7 @@ export default async function handler(
 
   console.log("images", images);
 
-  const filePath = await saveImagesAsVideo(images, audio);
+  const filePath = await saveImagesAsVideo2(images, audio);
 
   res.json({ data: filePath });
 }

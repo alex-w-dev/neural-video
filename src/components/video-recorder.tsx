@@ -158,7 +158,7 @@ export function VideoRecorder({
         ) : null}
         ------
         {filmImages.length ? (
-          <button onClick={onSendVideoClick} disabled={serverRequest}>
+          <button onClick={onSendVideoClick}>
             Step 3: Send Video inServer
           </button>
         ) : null}
